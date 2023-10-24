@@ -14,27 +14,18 @@ const DescriptionPanel: FC = () => {
       }
     >
       <p>
-        This map represents a <i>network</i> of Wikipedia articles around the topic of "Data vizualisation". Each{" "}
-        <i>node</i> represents an article, and each edge a{" "}
-        <a target="_blank" rel="noreferrer" href="https://en.wikipedia.org/wiki/See_also">
-          "See also" link
-        </a>
-        .
+       This network represents reported connections between K-12 Schools and Community Providers in the South Side STEM Asset Survey
       </p>
       <p>
-        The seed articles were selected by hand by the{" "}
-        <a target="_blank" rel="noreferrer" href="https://medialab.sciencespo.fr/">
-          Sciences-Po médialab
+        The network is based on STEM Landscape Asset Surveys conducted by {" "}
+        <a target="_blank" rel="noreferrer" href="https://www.anl.gov/education/stem-opportunity-landscape-project/">
+          Argonne National Laboratories
         </a>{" "}
-        team, and the network was crawled using{" "}
-        <a target="_blank" rel="noreferrer" href="https://densitydesign.github.io/strumentalia-seealsology/">
-          Seealsology
+         and {" "}
+        <a target="_blank" rel="noreferrer" href="https://projectexploration.org/">
+          Project Exploration
         </a>
-        , and then cleaned and enriched manually. This makes the dataset creditable to both the médialab team and{" "}
-        <a target="_blank" rel="noreferrer" href="https://en.wikipedia.org/wiki/Wikipedia:Wikipedians">
-          Wikipedia editors
-        </a>
-        .
+       .
       </p>
       <p>
         This web application has been developed by{" "}
@@ -61,7 +52,7 @@ const DescriptionPanel: FC = () => {
           betweenness centrality
         </a>
         . More central nodes (ie. bigger nodes) are important crossing points in the network. Finally, You can click a
-        node to open the related Wikipedia article.
+        node to see the organization's website.
       </p>
     </Panel>
   );

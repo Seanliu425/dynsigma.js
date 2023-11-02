@@ -2,16 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Sigma.js</title>
+    <title>South Side STEM Asset Survey</title>
     <meta
       name="description"
-      content="a JavaScript library aimed at visualizing graphs of thousands of nodes and edges"
+      content="South Side STEM Asset Survey"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon-16x16.png" />
-    <meta name="theme-color" content="#e22653" />
+    <meta name="theme-color" content="#262ce2" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -80,30 +80,50 @@
     <main>
       <section class="title">
         <h1 class="with-logo">
-          <img src="./assets/images/logo-sigma-ruby.svg" alt="" /> <span class="text-ruby">sigma</span
-          ><span class="text-grey">.js</span>
+          <img src="./assets/images/DYN_Logo.svg" alt="" /> <span class="text-blue">Digital Youth</span
+          ><span class="text-grey"> Network </span>
         </h1>
-        <i><strong>a JavaScript library aimed at visualizing graphs of thousands of nodes and edges</strong></i>
+        <i><strong>South Side STEM Asset Survey</strong></i>
       </section>
 
       <section class="showcase">
         <div class="wrapper">
           <iframe allowfullscreen="allowfullscreen" src="./demo/index.html" title="Sigma.js demo" width="100%"></iframe>
           <div class="overlay" tabindex="0">
-            <h2 class="text-title"><span class="bg">See sigma.js in action</span></h2>
+            <h2 class="text-title"><span class="bg">See Our Networks In Action</span></h2>
             <div>
-              <span class="bg">Click here to explore a network of Wikipedia pages about data visualization.</span>
+              <span class="bg">Click To Explore A Network Of Community and K-12 Providers.</span>
             </div>
           </div>
         </div>
+        
         <div class="caption">
           <div class="links">
-            <a href="./demo/index.html">open demo</a>
+            <a href="./demo2/index.html">open demo</a>
             <a href="https://github.com/jacomyal/sigma.js/tree/main/demo">open demo sources</a>
           </div>
           <button class="button button-light restore-overlay-button" disabled>restore overlay over demo</button>
         </div>
+        
+        <div class="wrapper">
+          <iframe allowfullscreen="allowfullscreen" src="./demo2/index.html" title="Sigma.js demo2" width="100%"></iframe>
+          <div class="overlay2" tabindex="0">
+            <h2 class="text-title"><span class="bg">See Our Networks In Action</span></h2>
+            <div>
+              <span class="bg">Click To Explore Evanston's OST Programs.</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="caption">
+          <div class="links">
+            <a href="./demo2/index.html">open demo</a>
+            <a href="https://github.com/jacomyal/sigma.js/tree/main/demo">open demo sources</a>
+          </div>
+          <button class="button button-light restore-overlay-button2" disabled>restore overlay over demo</button>
+        </div>
       </section>
+      
 
       <section id="architecture">
         <h2>Architecture</h2>
@@ -368,5 +388,21 @@
         });
       })();
     </script>
+        <script>
+          (() => {
+            const overlay = document.querySelector(".overlay2");
+            const button = document.querySelector(".restore-overlay-button2");
+    
+            overlay.addEventListener("click", () => {
+              overlay.classList.add("hide");
+              button.removeAttribute("disabled");
+            });
+    
+            button.addEventListener("click", () => {
+              overlay.classList.remove("hide");
+              button.setAttribute("disabled", "true");
+            });
+          })();
+        </script>
   </body>
 </html>

@@ -98,17 +98,18 @@ body {
   overflow-y: auto;
   padding: var(--stage-padding);
   scrollbar-width: thin;
+  display: flex; /* Add this line */
+  flex-direction: column; /* Add this line */
 }
-::-webkit-scrollbar {
-  width: 5px;
+
+/* If you want the panels side by side, use this instead:
+.panels {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 700px; // Adjust as needed
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background-color: var(--grey);
-  border: transparent;
-}
+*/
 
 /**
  * USEFUL CLASSES:

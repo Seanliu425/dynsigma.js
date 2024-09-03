@@ -113,7 +113,7 @@ const Root: FC = () => {
               <GraphTitle filters={filtersState} />
               <div className="panels">
                 <SearchField filters={filtersState} />
-                <DescriptionPanel />
+                <DescriptionPanel selectedNode={selectedNode} />
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}

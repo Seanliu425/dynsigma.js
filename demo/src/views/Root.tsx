@@ -29,6 +29,7 @@ const Root: FC = () => {
     tags: {},
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   // Load data on mount:
   useEffect(() => {
@@ -63,8 +64,14 @@ const Root: FC = () => {
         }}
         className="react-sigma"
       >
-        <GraphSettingsController hoveredNode={hoveredNode} />
-        <GraphEventsController setHoveredNode={setHoveredNode} />
+        <GraphSettingsController 
+          hoveredNode={hoveredNode} 
+          selectedNode={selectedNode}
+        />
+        <GraphEventsController 
+          setHoveredNode={setHoveredNode}
+          setSelectedNode={setSelectedNode}
+        />
         <GraphDataController dataset={dataset} filters={filtersState} />
 
         {dataReady && (

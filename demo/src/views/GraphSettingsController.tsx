@@ -7,12 +7,13 @@ import useDebounce from "../use-debounce";
 const NODE_FADE_COLOR = "#bbb";
 const EDGE_FADE_COLOR = "#eee";
 
-const GraphSettingsController: FC<{ hoveredNode: string | null }> = ({ children, hoveredNode }) => {
+const GraphSettingsController: FC<{
+  hoveredNode: string | null;
+  selectedNode: string | null;
+}> = ({ children, hoveredNode, selectedNode }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
 
-  // Here we debounce the value to avoid having too much highlights refresh when
-  // moving the mouse over the graph:
   const debouncedHoveredNode = useDebounce(hoveredNode, 40);
 
   /**
@@ -26,33 +27,32 @@ const GraphSettingsController: FC<{ hoveredNode: string | null }> = ({ children,
   }, [sigma, graph]);
 
   /**
-   * Update node and edge reducers when a node is hovered, to highlight its
-   * neighborhood:
+   * Update node and edge reducers when a node is hovered or selected, to hide unrelated nodes:
    */
   useEffect(() => {
-    const hoveredColor: string = debouncedHoveredNode ? sigma.getNodeDisplayData(debouncedHoveredNode)!.color : "";
-
+    const activeNode = selectedNode || debouncedHoveredNode;
+    
     sigma.setSetting(
       "nodeReducer",
-      debouncedHoveredNode
+      activeNode
         ? (node, data) =>
-            node === debouncedHoveredNode ||
-            graph.hasEdge(node, debouncedHoveredNode) ||
-            graph.hasEdge(debouncedHoveredNode, node)
+            node === activeNode ||
+            graph.hasEdge(node, activeNode) ||
+            graph.hasEdge(activeNode, node)
               ? { ...data, zIndex: 1 }
-              : { ...data, zIndex: 0, label: "", color: NODE_FADE_COLOR, image: null, highlighted: false }
+              : { ...data, hidden: true }
         : null,
     );
     sigma.setSetting(
       "edgeReducer",
-      debouncedHoveredNode
+      activeNode
         ? (edge, data) =>
-            graph.hasExtremity(edge, debouncedHoveredNode)
-              ? { ...data, color: hoveredColor, size: 4 }
-              : { ...data, color: EDGE_FADE_COLOR, hidden: true }
+            graph.hasExtremity(edge, activeNode)
+              ? { ...data, zIndex: 1 }
+              : { ...data, hidden: true }
         : null,
     );
-  }, [debouncedHoveredNode]);
+  }, [debouncedHoveredNode, selectedNode]);
 
   return <>{children}</>;
 };

@@ -8,6 +8,7 @@ import GraphSettingsController from "./GraphSettingsController";
 import GraphEventsController from "./GraphEventsController";
 import GraphDataController from "./GraphDataController";
 import DescriptionPanel from "./DescriptionPanel";
+import SecondDescriptionPanel from "./SecondDescriptionPanel";
 import { Dataset, FiltersState } from "../types";
 import ClustersPanel from "./ClustersPanel";
 import SearchField from "./SearchField";
@@ -30,6 +31,7 @@ const Root: FC = () => {
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [showSecondDegree, setShowSecondDegree] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -67,6 +69,7 @@ const Root: FC = () => {
         <GraphSettingsController 
           hoveredNode={hoveredNode} 
           selectedNode={selectedNode}
+          showSecondDegree={showSecondDegree}
         />
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
@@ -113,7 +116,16 @@ const Root: FC = () => {
               <GraphTitle filters={filtersState} />
               <div className="panels">
                 <SearchField filters={filtersState} />
-                <DescriptionPanel selectedNode={selectedNode} />
+                <DescriptionPanel 
+                  selectedNode={selectedNode}
+                  showSecondDegree={showSecondDegree}
+                  setShowSecondDegree={setShowSecondDegree}
+                />
+                <SecondDescriptionPanel 
+                  selectedNode={selectedNode}
+                  showSecondDegree={showSecondDegree}
+                  setShowSecondDegree={setShowSecondDegree}
+                />
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}

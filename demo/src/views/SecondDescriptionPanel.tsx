@@ -3,13 +3,13 @@ import { BsInfoCircle } from "react-icons/bs";
 import Panel from "./Panel";
 import { useSigma } from "react-sigma-v2";
 
-interface DescriptionPanelProps {
+interface SecondDescriptionPanelProps {
   selectedNode: string | null;
   showSecondDegree: boolean;
   setShowSecondDegree: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const DescriptionPanel: FC<DescriptionPanelProps> = ({ 
+const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({ 
   selectedNode, 
   showSecondDegree, 
   setShowSecondDegree 
@@ -51,7 +51,7 @@ const DescriptionPanel: FC<DescriptionPanelProps> = ({
       initiallyDeployed={false} // Change this to false
       title={
         <>
-          <BsInfoCircle className="text-muted" /> Description
+          <BsInfoCircle className="text-muted" /> Node Information
         </>
       }
     >
@@ -93,7 +93,43 @@ const DescriptionPanel: FC<DescriptionPanelProps> = ({
         Larger nodes indicate higher scores and potentially more significant entities in the STEM network.
       </p>
 
-     
+      {selectedNode && selectedNodeAttributes && (
+        <div>
+          <h3>Selected Node Information</h3>
+          <p>Name: {selectedNodeAttributes.label || selectedNode}</p>
+          <p>Score: {selectedNodeAttributes.score !== undefined ? selectedNodeAttributes.score.toFixed(2) : "N/A"}</p>
+          
+          <h4>First-Degree Connections:</h4>
+          {firstDegreeConnections.length > 0 ? (
+            <ul>
+              {firstDegreeConnections.map(node => (
+                <li key={node.id}>{node.label}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No direct connections</p>
+          )}
+
+          <button onClick={toggleSecondDegree}>
+            {showSecondDegree ? "Hide" : "Show"} Second-Degree Connections
+          </button>
+
+          {showSecondDegree && (
+            <div>
+              <h4>Second-Degree Connections:</h4>
+              {secondDegreeConnections.length > 0 ? (
+                <ul>
+                  {secondDegreeConnections.map(node => (
+                    <li key={node.id}>{node.label}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No second-degree connections</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <p>
         Nodes sizes are related to their{" "}
@@ -107,4 +143,4 @@ const DescriptionPanel: FC<DescriptionPanelProps> = ({
   );
 };
 
-export default DescriptionPanel;
+export default SecondDescriptionPanel;

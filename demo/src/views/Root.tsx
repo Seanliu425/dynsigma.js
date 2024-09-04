@@ -32,6 +32,7 @@ const Root: FC = () => {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [showSecondDegree, setShowSecondDegree] = useState(false);
+  const [overlayVisible, setOverlayVisible] = useState(true);
 
   // Load data on mount:
   useEffect(() => {
@@ -51,6 +52,32 @@ const Root: FC = () => {
 
   return (
     <div id="app-root" className={showContents ? "show-contents" : ""}>
+      {overlayVisible && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            cursor: 'pointer',
+          }}
+          onClick={() => setOverlayVisible(false)}
+        >
+          <div style={{
+            color: 'white',
+            textAlign: 'center',
+          }}>
+            <h2 style={{ fontSize: '2.5em', marginBottom: '0.5em' }}>Welcome to the Graph Visualization</h2>
+            <p style={{ fontSize: '1.2em' }}>Click anywhere to explore the graph</p>
+          </div>
+        </div>
+      )}
       <SigmaContainer
         graphOptions={{ type: "directed" }}
         initialSettings={{
@@ -74,6 +101,7 @@ const Root: FC = () => {
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
           setSelectedNode={setSelectedNode}
+          interactionsEnabled={!overlayVisible}
         />
         <GraphDataController dataset={dataset} filters={filtersState} />
 
@@ -115,7 +143,10 @@ const Root: FC = () => {
               </div>
               <GraphTitle filters={filtersState} />
               <div className="panels">
-                <SearchField filters={filtersState} setSelectedNode={setSelectedNode} />
+                <SearchField 
+                  filters={filtersState}
+                  setSelectedNode={setSelectedNode}
+                />
                 <DescriptionPanel 
                   selectedNode={selectedNode}
                   showSecondDegree={showSecondDegree}

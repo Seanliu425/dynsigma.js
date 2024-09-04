@@ -8,12 +8,15 @@ function getMouseLayer() {
 const GraphEventsController: FC<{
   setHoveredNode: (node: string | null) => void;
   setSelectedNode: (node: string | null) => void;
-}> = ({ setHoveredNode, setSelectedNode, children }) => {
+  interactionsEnabled: boolean;
+}> = ({ setHoveredNode, setSelectedNode, interactionsEnabled, children }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const registerEvents = useRegisterEvents();
 
   useEffect(() => {
+    if (!interactionsEnabled) return;
+
     registerEvents({
       clickNode({ node }) {
         if (!graph.getNodeAttribute(node, "hidden")) {
@@ -34,7 +37,7 @@ const GraphEventsController: FC<{
         if (mouseLayer) mouseLayer.classList.remove("mouse-pointer");
       },
     });
-  }, []);
+  }, [interactionsEnabled]);
 
   return <>{children}</>;
 };

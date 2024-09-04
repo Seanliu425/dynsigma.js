@@ -1,7 +1,8 @@
-import React, { FC } from "react";
+import React, { FC, useState, useEffect, useMemo } from "react";
 import { BsInfoCircle } from "react-icons/bs";
 import Panel from "./Panel";
 import { useSigma } from "react-sigma-v2";
+import styles from "./SecondDescriptionPanel.module.css"; // We'll create this CSS module
 
 interface SecondDescriptionPanelProps {
   selectedNode: string | null;
@@ -16,129 +17,122 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
+  const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
 
-  // Get the attributes of the selected node, if any
-  const selectedNodeAttributes = selectedNode 
-    ? graph.getNodeAttributes(selectedNode)
-    : null;
+  const firstDegreeConnections = useMemo(() => {
+    if (!selectedNode) return [];
 
-  // Get first-degree connections
-  const firstDegreeConnections = selectedNode
-    ? graph.neighbors(selectedNode).map(nodeId => ({
-        id: nodeId,
-        label: graph.getNodeAttribute(nodeId, "label") || nodeId,
-      }))
-    : [];
+    const neighbors = graph.neighbors(selectedNode);
+    const connections = neighbors.map(nodeId => ({
+      id: nodeId,
+      label: graph.getNodeAttribute(nodeId, "label") || nodeId,
+      hasSecondDegree: graph.neighbors(nodeId).some(n => n !== selectedNode && !neighbors.includes(n))
+    }));
 
-  // Get second-degree connections
-  const secondDegreeConnections = selectedNode
-    ? Array.from(new Set(
-        firstDegreeConnections.flatMap(node => 
-          graph.neighbors(node.id).filter(n => n !== selectedNode && !firstDegreeConnections.some(fdc => fdc.id === n))
-        )
-      )).map(nodeId => ({
-        id: nodeId,
-        label: graph.getNodeAttribute(nodeId, "label") || nodeId,
-      }))
-    : [];
+    // Sort connections, prioritizing those with second-degree connections
+    connections.sort((a, b) => {
+      if (a.hasSecondDegree && !b.hasSecondDegree) return -1;
+      if (!a.hasSecondDegree && b.hasSecondDegree) return 1;
+      return 0;
+    });
 
-  const toggleSecondDegree = () => {
-    setShowSecondDegree(!showSecondDegree);
+    return connections;
+  }, [selectedNode, graph]);
+
+  const displayedConnections = showAllFirstDegree 
+    ? firstDegreeConnections 
+    : firstDegreeConnections.slice(0, 10);
+
+  const secondDegreeConnections = useMemo(() => {
+    if (!selectedNode) return [];
+
+    const firstDegreeIds = new Set(firstDegreeConnections.map(n => n.id));
+    return Array.from(new Set(
+      firstDegreeConnections.flatMap(node => 
+        graph.neighbors(node.id).filter(n => n !== selectedNode && !firstDegreeIds.has(n))
+      )
+    )).map(nodeId => ({
+      id: nodeId,
+      label: graph.getNodeAttribute(nodeId, "label") || nodeId,
+    }));
+  }, [selectedNode, firstDegreeConnections, graph]);
+
+  const toggleShowAllFirstDegree = () => {
+    setShowAllFirstDegree(!showAllFirstDegree);
   };
+
+  useEffect(() => {
+    setShowAllFirstDegree(false);
+  }, [selectedNode]);
 
   return (
     <Panel
-      initiallyDeployed={false} // Change this to false
+      initiallyDeployed={true}
       title={
         <>
           <BsInfoCircle className="text-muted" /> Node Information
         </>
       }
     >
-      <p>
-       This network represents reported connections between K-12 Schools and Community Providers in the South Side STEM Asset Survey
-      </p>
-      <p>
-        The network is based on STEM Landscape Asset Surveys conducted by {" "}
-        <a target="_blank" rel="noreferrer" href="https://www.anl.gov/education/stem-opportunity-landscape-project/">
-          Argonne National Laboratories
-        </a>{" "}
-         and {" "}
-        <a target="_blank" rel="noreferrer" href="https://projectexploration.org/">
-          Project Exploration
-        </a>
-       .
-      </p>
-      <p>
-        This web application has been developed by{" "}
-        <a target="_blank" rel="noreferrer" href="https://www.ouestware.com/en/">
-          OuestWare
-        </a>
-        , using{" "}
-        <a target="_blank" rel="noreferrer" href="https://reactjs.org/">
-          react
-        </a>{" "}
-        and{" "}
-        <a target="_blank" rel="noreferrer" href="https://www.sigmajs.org">
-          sigma.js
-        </a>
-        . You can read the source code{" "}
-        <a target="_blank" rel="noreferrer" href="https://github.com/jacomyal/sigma.js/tree/main/demo">
-          on GitHub
-        </a>
-        .
-      </p>
-      <p>
-        Node sizes are related to their importance in the network. 
-        Larger nodes indicate higher scores and potentially more significant entities in the STEM network.
-      </p>
-
-      {selectedNode && selectedNodeAttributes && (
-        <div>
-          <h3>Selected Node Information</h3>
-          <p>Name: {selectedNodeAttributes.label || selectedNode}</p>
-          <p>Score: {selectedNodeAttributes.score !== undefined ? selectedNodeAttributes.score.toFixed(2) : "N/A"}</p>
-          
-          <h4>First-Degree Connections:</h4>
-          {firstDegreeConnections.length > 0 ? (
-            <ul>
-              {firstDegreeConnections.map(node => (
-                <li key={node.id}>{node.label}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No direct connections</p>
-          )}
-
-          <button onClick={toggleSecondDegree}>
-            {showSecondDegree ? "Hide" : "Show"} Second-Degree Connections
-          </button>
-
-          {showSecondDegree && (
-            <div>
-              <h4>Second-Degree Connections:</h4>
-              {secondDegreeConnections.length > 0 ? (
+      <div>
+        <h3>Selected Node Information</h3>
+        <p>Name: {selectedNode ? (graph.getNodeAttribute(selectedNode, "label") || selectedNode) : "Not Selected"}</p>
+        <p>Number of Connections: {selectedNode ? firstDegreeConnections.length : "0"}</p>
+        
+        {selectedNode && (
+          <>
+            <h4>First-Degree Connections:</h4>
+            {displayedConnections.length > 0 ? (
+              <>
                 <ul>
-                  {secondDegreeConnections.map(node => (
-                    <li key={node.id}>{node.label}</li>
+                  {displayedConnections.map(node => (
+                    <li key={node.id}>
+                      {node.label}
+                      {node.hasSecondDegree && <span> (has 2nd degree connections)</span>}
+                    </li>
                   ))}
                 </ul>
-              ) : (
-                <p>No second-degree connections</p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                {firstDegreeConnections.length > 10 && (
+                  <button 
+                    onClick={toggleShowAllFirstDegree}
+                    className={`${styles.button} ${styles.primaryButton}`}
+                  >
+                    {showAllFirstDegree ? "Show Less" : `Show More (${firstDegreeConnections.length - 10} more)`}
+                  </button>
+                )}
+              </>
+            ) : (
+              <p>No direct connections</p>
+            )}
 
-      <p>
-        Nodes sizes are related to their{" "}
-        <a target="_blank" rel="noreferrer" href="https://en.wikipedia.org/wiki/Betweenness_centrality">
-          betweenness centrality
-        </a>
-        . More central nodes (ie. bigger nodes) are important crossing points in the network. Finally, You can click a
-        node to see the organization's website.
-      </p>
+            <button 
+              onClick={() => setShowSecondDegree(!showSecondDegree)}
+              className={`${styles.button} ${showSecondDegree ? styles.secondaryButton : styles.primaryButton}`}
+            >
+              {showSecondDegree ? "Hide" : "Show"} Second-Degree Connections
+            </button>
+
+            {showSecondDegree && (
+              <>
+                <p>Number of Second-Degree Connections: {secondDegreeConnections.length}</p>
+                <h4>Second-Degree Connections:</h4>
+                {secondDegreeConnections.length > 0 ? (
+                  <ul>
+                    {secondDegreeConnections.map(node => (
+                      <li key={node.id}>{node.label}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No second-degree connections</p>
+                )}
+              </>
+            )}
+          </>
+        )}
+        {!selectedNode && (
+          <p>No node selected. Select a node to see its connections.</p>
+        )}
+      </div>
     </Panel>
   );
 };

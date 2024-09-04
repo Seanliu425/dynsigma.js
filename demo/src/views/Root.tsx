@@ -115,7 +115,7 @@ const Root: FC = () => {
               </div>
               <GraphTitle filters={filtersState} />
               <div className="panels">
-                <SearchField filters={filtersState} />
+                <SearchField filters={filtersState} setSelectedNode={setSelectedNode} />
                 <DescriptionPanel 
                   selectedNode={selectedNode}
                   showSecondDegree={showSecondDegree}

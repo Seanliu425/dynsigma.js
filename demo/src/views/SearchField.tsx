@@ -11,7 +11,10 @@ import { FiltersState } from "../types";
  * 1. We need to hide hidden nodes from results
  * 2. We need custom markup
  */
-const SearchField: FC<{ filters: FiltersState }> = ({ filters }) => {
+const SearchField: FC<{ 
+  filters: FiltersState,
+  setSelectedNode: (node: string | null) => void // Add this prop
+}> = ({ filters, setSelectedNode }) => {
   const sigma = useSigma();
 
   const [search, setSearch] = useState<string>("");
@@ -44,13 +47,18 @@ const SearchField: FC<{ filters: FiltersState }> = ({ filters }) => {
     sigma.getGraph().setNodeAttribute(selected, "highlighted", true);
     const nodeDisplayData = sigma.getNodeDisplayData(selected);
 
-    if (nodeDisplayData)
-      sigma.getCamera().animate(
-        { ...nodeDisplayData, ratio: 0.05 },
+    if (nodeDisplayData) {
+      const camera = sigma.getCamera();
+      const currentRatio = camera.getState().ratio;
+      camera.animate(
+        { ...nodeDisplayData, ratio: currentRatio },
         {
           duration: 600,
         },
       );
+    }
+
+    setSelectedNode(selected); // Add this line to select the node
 
     return () => {
       sigma.getGraph().setNodeAttribute(selected, "highlighted", false);

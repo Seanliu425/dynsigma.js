@@ -1,5 +1,5 @@
 import { useSigma } from "react-sigma-v2";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useRef } from "react";
 
 import { drawHover } from "../canvas-utils";
 import useDebounce from "../use-debounce";
@@ -10,10 +10,11 @@ const EDGE_FADE_COLOR = "#eee";
 const GraphSettingsController: FC<{
   hoveredNode: string | null;
   selectedNode: string | null;
-  showSecondDegree: boolean;  // New prop
+  showSecondDegree: boolean;
 }> = ({ children, hoveredNode, selectedNode, showSecondDegree }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
+  const previousCamera = useRef(sigma.getCamera().getState());
 
   const debouncedHoveredNode = useDebounce(hoveredNode, 40);
 
@@ -40,7 +41,6 @@ const GraphSettingsController: FC<{
             if (node === activeNode || graph.hasEdge(node, activeNode) || graph.hasEdge(activeNode, node)) {
               return { ...data, zIndex: 1 };
             } else if (showSecondDegree) {
-              // Check if the node is a second-degree connection
               const isSecondDegree = graph.neighbors(activeNode).some(neighbor => 
                 graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
               );
@@ -55,13 +55,15 @@ const GraphSettingsController: FC<{
       "edgeReducer",
       activeNode
         ? (edge, data) => {
+            const [source, target] = graph.extremities(edge);
             if (graph.hasExtremity(edge, activeNode)) {
               return { ...data, zIndex: 1 };
             } else if (showSecondDegree) {
-              // Check if the edge connects to a first-degree neighbor
-              const [source, target] = graph.extremities(edge);
               const isSecondDegree = 
-                graph.hasEdge(activeNode, source) || graph.hasEdge(activeNode, target);
+                graph.hasEdge(activeNode, source) || graph.hasEdge(activeNode, target) ||
+                graph.neighbors(activeNode).some(neighbor => 
+                  graph.hasEdge(neighbor, source) || graph.hasEdge(neighbor, target)
+                );
               return isSecondDegree ? { ...data, zIndex: 0 } : { ...data, hidden: true };
             } else {
               return { ...data, hidden: true };
@@ -70,6 +72,38 @@ const GraphSettingsController: FC<{
         : null,
     );
   }, [debouncedHoveredNode, selectedNode, showSecondDegree]);
+
+  // Modify this useEffect to prevent zooming
+  useEffect(() => {
+    if (selectedNode) {
+      const nodePosition = sigma.getNodeDisplayData(selectedNode);
+      if (nodePosition) {
+        const camera = sigma.getCamera();
+        const currentState = camera.getState();
+        
+        // Only update x and y, keep the same ratio (zoom level)
+        camera.animate(
+          { 
+            x: nodePosition.x,
+            y: nodePosition.y,
+            ratio: currentState.ratio,
+            angle: currentState.angle
+          },
+          { 
+            duration: 500,
+            easing: 'quadraticInOut'
+          }
+        );
+      }
+    }
+  }, [selectedNode, sigma]);
+
+  // Reset camera position when no node is selected
+  useEffect(() => {
+    if (!selectedNode && !hoveredNode) {
+      sigma.getCamera().animate(previousCamera.current, { duration: 300 });
+    }
+  }, [selectedNode, hoveredNode, sigma]);
 
   return <>{children}</>;
 };

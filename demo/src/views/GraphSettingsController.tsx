@@ -11,7 +11,8 @@ const GraphSettingsController: FC<{
   hoveredNode: string | null;
   selectedNode: string | null;
   showSecondDegree: boolean;
-}> = ({ children, hoveredNode, selectedNode, showSecondDegree }) => {
+  showCluster: boolean;
+}> = ({ children, hoveredNode, selectedNode, showSecondDegree, showCluster }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const previousCamera = useRef(sigma.getCamera().getState());
@@ -36,42 +37,83 @@ const GraphSettingsController: FC<{
     
     sigma.setSetting(
       "nodeReducer",
-      activeNode
-        ? (node, data) => {
-            if (node === activeNode || graph.hasEdge(node, activeNode) || graph.hasEdge(activeNode, node)) {
-              return { ...data, zIndex: 1 };
-            } else if (showSecondDegree) {
-              const isSecondDegree = graph.neighbors(activeNode).some(neighbor => 
-                graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
-              );
-              return isSecondDegree ? { ...data, zIndex: 0 } : { ...data, hidden: true };
-            } else {
-              return { ...data, hidden: true };
-            }
+      (node, data) => {
+        // If no filtering is active, show all nodes
+        if (!activeNode && !showCluster) {
+          return data;
+        }
+
+        // Always show the selected node
+        if (node === selectedNode) {
+          return { ...data, zIndex: 2 }; // Higher zIndex to ensure it's on top
+        }
+
+        if (showCluster && selectedNode) {
+          const selectedNodeCluster = graph.getNodeAttribute(selectedNode, "cluster");
+          const nodeCluster = graph.getNodeAttribute(node, "cluster");
+          if (nodeCluster === selectedNodeCluster) {
+            return { ...data, zIndex: 1 };
           }
-        : null,
+        }
+        
+        if (activeNode) {
+          if (node === activeNode || graph.hasEdge(node, activeNode) || graph.hasEdge(activeNode, node)) {
+            return { ...data, zIndex: 1 };
+          } else if (showSecondDegree) {
+            const isSecondDegree = graph.neighbors(activeNode).some(neighbor => 
+              graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
+            );
+            if (isSecondDegree) return { ...data, zIndex: 0 };
+          }
+        }
+        
+        // Hide the node if it doesn't meet any of the above conditions
+        return { ...data, hidden: true };
+      }
     );
+
     sigma.setSetting(
       "edgeReducer",
-      activeNode
-        ? (edge, data) => {
-            const [source, target] = graph.extremities(edge);
-            if (graph.hasExtremity(edge, activeNode)) {
-              return { ...data, zIndex: 1 };
-            } else if (showSecondDegree) {
-              const isSecondDegree = 
-                graph.hasEdge(activeNode, source) || graph.hasEdge(activeNode, target) ||
-                graph.neighbors(activeNode).some(neighbor => 
-                  graph.hasEdge(neighbor, source) || graph.hasEdge(neighbor, target)
-                );
-              return isSecondDegree ? { ...data, zIndex: 0 } : { ...data, hidden: true };
-            } else {
-              return { ...data, hidden: true };
-            }
+      (edge, data) => {
+        // If no filtering is active, show all edges
+        if (!activeNode && !showCluster) {
+          return data;
+        }
+
+        const [source, target] = graph.extremities(edge);
+
+        // Always show edges connected to the selected node
+        if (selectedNode && (source === selectedNode || target === selectedNode)) {
+          return { ...data, zIndex: 2 }; // Higher zIndex to ensure it's on top
+        }
+
+        if (showCluster && selectedNode) {
+          const selectedNodeCluster = graph.getNodeAttribute(selectedNode, "cluster");
+          const sourceCluster = graph.getNodeAttribute(source, "cluster");
+          const targetCluster = graph.getNodeAttribute(target, "cluster");
+          if (sourceCluster === selectedNodeCluster && targetCluster === selectedNodeCluster) {
+            return { ...data, zIndex: 1 };
           }
-        : null,
+        }
+        
+        if (activeNode) {
+          if (graph.hasExtremity(edge, activeNode)) {
+            return { ...data, zIndex: 1 };
+          } else if (showSecondDegree) {
+            const isSecondDegree = 
+              graph.hasEdge(activeNode, source) || graph.hasEdge(activeNode, target) ||
+              graph.neighbors(activeNode).some(neighbor => 
+                graph.hasEdge(neighbor, source) || graph.hasEdge(neighbor, target)
+              );
+            if (isSecondDegree) return { ...data, zIndex: 0 };
+          }
+        }
+        
+        // Hide the edge if it doesn't meet any of the above conditions
+        return { ...data, hidden: true };
+      }
     );
-  }, [debouncedHoveredNode, selectedNode, showSecondDegree]);
+  }, [debouncedHoveredNode, selectedNode, showSecondDegree, showCluster, sigma, graph]);
 
   // Modify this useEffect to prevent zooming
   useEffect(() => {

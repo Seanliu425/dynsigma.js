@@ -48,12 +48,8 @@ const DescriptionPanel: FC<DescriptionPanelProps> = ({
 
   return (
     <Panel
-      initiallyDeployed={false} // Change this to false
-      title={
-        <>
-          <BsInfoCircle className="text-muted" /> Description
-        </>
-      }
+      title="About This App"
+      initiallyDeployed={false}
     >
       <p>
        This network represents reported connections between K-12 Schools and Community Providers in the South Side STEM Asset Survey

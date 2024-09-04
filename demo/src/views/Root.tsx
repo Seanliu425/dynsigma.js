@@ -33,6 +33,7 @@ const Root: FC = () => {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [showSecondDegree, setShowSecondDegree] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(true);
+  const [showCluster, setShowCluster] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -97,6 +98,7 @@ const Root: FC = () => {
           hoveredNode={hoveredNode} 
           selectedNode={selectedNode}
           showSecondDegree={showSecondDegree}
+          showCluster={showCluster}
         />
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
@@ -147,15 +149,12 @@ const Root: FC = () => {
                   filters={filtersState}
                   setSelectedNode={setSelectedNode}
                 />
-                <DescriptionPanel 
-                  selectedNode={selectedNode}
-                  showSecondDegree={showSecondDegree}
-                  setShowSecondDegree={setShowSecondDegree}
-                />
                 <SecondDescriptionPanel 
                   selectedNode={selectedNode}
                   showSecondDegree={showSecondDegree}
                   setShowSecondDegree={setShowSecondDegree}
+                  showCluster={showCluster}
+                  setShowCluster={setShowCluster}
                 />
                 <ClustersPanel
                   clusters={dataset.clusters}
@@ -190,6 +189,11 @@ const Root: FC = () => {
                       tags: filters.tags[tag] ? omit(filters.tags, tag) : { ...filters.tags, [tag]: true },
                     }));
                   }}
+                />
+                <DescriptionPanel 
+                  selectedNode={selectedNode}
+                  showSecondDegree={showSecondDegree}
+                  setShowSecondDegree={setShowSecondDegree}
                 />
               </div>
             </div>

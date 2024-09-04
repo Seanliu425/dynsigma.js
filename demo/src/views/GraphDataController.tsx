@@ -50,9 +50,12 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
    */
   useEffect(() => {
     const { clusters, tags } = filters;
-    graph.forEachNode((node, { cluster, tag }) =>
-      graph.setNodeAttribute(node, "hidden", !clusters[cluster] || !tags[tag]),
-    );
+    graph.forEachNode((node) => {
+      const nodeData = graph.getNodeAttributes(node);
+      const isClusterVisible = clusters[nodeData.cluster];
+      const isTagVisible = tags[nodeData.tag];
+      graph.setNodeAttribute(node, "hidden", !isClusterVisible || !isTagVisible);
+    });
   }, [graph, filters]);
 
   return <>{children}</>;

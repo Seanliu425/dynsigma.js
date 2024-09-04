@@ -8,12 +8,16 @@ interface SecondDescriptionPanelProps {
   selectedNode: string | null;
   showSecondDegree: boolean;
   setShowSecondDegree: React.Dispatch<React.SetStateAction<boolean>>;
+  showCluster: boolean;
+  setShowCluster: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({ 
   selectedNode, 
   showSecondDegree, 
-  setShowSecondDegree 
+  setShowSecondDegree, 
+  showCluster,
+  setShowCluster 
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
@@ -64,6 +68,25 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   useEffect(() => {
     setShowAllFirstDegree(false);
   }, [selectedNode]);
+
+  useEffect(() => {
+    if (!selectedNode) {
+      // When no node is selected, automatically set showCluster to false
+      setShowCluster(false);
+      // Ensure all nodes are visible
+      graph.forEachNode((node) => {
+        graph.setNodeAttribute(node, "hidden", false);
+      });
+    }
+  }, [selectedNode, setShowCluster, graph]);
+
+  const handleClusterToggle = () => {
+    if (selectedNode) {
+      const newShowCluster = !showCluster;
+      setShowCluster(newShowCluster);
+      // Note: When a node is selected, we assume the existing clustering logic will handle visibility
+    }
+  };
 
   return (
     <Panel
@@ -130,8 +153,19 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           </>
         )}
         {!selectedNode && (
-          <p>No node selected. Select a node to see its connections.</p>
+          <p><strong>No node selected. Select a node to see its connections.</strong></p>
         )}
+      </div>
+      <div className={styles.panel}>
+        <button
+          className={`${styles.button} ${styles.clusterButton}`}
+          onClick={handleClusterToggle}
+          disabled={!selectedNode}
+        >
+          {selectedNode
+            ? (showCluster ? 'Hide' : 'Show') + ' Organizations in my Cluster'
+            : 'Please search or select a node'}
+        </button>
       </div>
     </Panel>
   );

@@ -1,13 +1,15 @@
 /* Add this at the top of the file */
 .panel {
-  font-family: Calibri, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Public Sans", sans-serif;
 }
 
 .button {
-    font-family: Calibri, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-family: "Public Sans", sans-serif;
+    font-weight: bold;
+    color: black;
+    border: 2px solid black;
     padding: 10px 15px;
     font-size: 16px; /* Adjusted for Calibri */
-    border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.1s;
@@ -26,7 +28,7 @@
   
   .primaryButton {
     background-color: #C8A2C8; /* Lilac */
-    color: white;
+    color: black;
   }
   
   .primaryButton:hover {
@@ -35,9 +37,18 @@
   
   .secondaryButton {
     background-color: #9F7AAD; /* Deeper lilac */
-    color: white;
+    color: black;
   }
   
   .secondaryButton:hover {
     background-color: #8A6A94; /* Even darker lilac */
+  }
+  
+  .clusterButton {
+    background-color: #A0D6B4;
+    color: black;
+  }
+
+  .clusterButton:hover {
+    background-color: #8BC6A4;
   }

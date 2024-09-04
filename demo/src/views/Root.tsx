@@ -190,11 +190,7 @@ const Root: FC = () => {
                     }));
                   }}
                 />
-                <DescriptionPanel 
-                  clickedNode={clickedNode}
-                  showSecondDegree={showSecondDegree}
-                  setShowSecondDegree={setShowSecondDegree}
-                />
+                <DescriptionPanel />
               </div>
             </div>
           </>

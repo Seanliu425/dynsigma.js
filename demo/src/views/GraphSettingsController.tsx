@@ -32,14 +32,16 @@ const GraphSettingsController: FC<{
   /**
    * Update node and edge reducers when a node is hovered or selected, to hide unrelated nodes:
    */
+  
+
+
+
   useEffect(() => {
-    const activeNode = clickedNode || debouncedHoveredNode;
-    
     sigma.setSetting(
       "nodeReducer",
       (node, data) => {
         // If no filtering is active, show all nodes
-        if (!activeNode && !showCluster) {
+        if (!clickedNode && !debouncedHoveredNode && !showCluster) {
           return data;
         }
 
@@ -56,19 +58,31 @@ const GraphSettingsController: FC<{
           }
         }
         
-        if (activeNode) {
-          if (node === activeNode || graph.hasEdge(node, activeNode) || graph.hasEdge(activeNode, node)) {
+        if (clickedNode) {
+          if (graph.hasEdge(node, clickedNode) || graph.hasEdge(clickedNode, node)) {
             return { ...data, zIndex: 1 };
           } else if (showSecondDegree) {
-            const isSecondDegree = graph.neighbors(activeNode).some(neighbor => 
+            const isSecondDegree = graph.neighbors(clickedNode).some(neighbor => 
               graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
             );
             if (isSecondDegree) return { ...data, zIndex: 0 };
           }
+          // Hide nodes not connected to clicked node
+          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: true };
+        } else if (debouncedHoveredNode) {
+          if (node === debouncedHoveredNode || graph.hasEdge(node, debouncedHoveredNode) || graph.hasEdge(debouncedHoveredNode, node)) {
+            return { ...data, zIndex: 1 };
+          } else if (showSecondDegree) {
+            const isSecondDegree = graph.neighbors(debouncedHoveredNode).some(neighbor => 
+              graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
+            );
+            if (isSecondDegree) return { ...data, zIndex: 0 };
+          }
+          // Lower opacity for nodes not connected to hovered node
+          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };
         }
         
-        // Hide the node if it doesn't meet any of the above conditions
-        return { ...data, hidden: true };
+        return data;
       }
     );
 
@@ -76,7 +90,7 @@ const GraphSettingsController: FC<{
       "edgeReducer",
       (edge, data) => {
         // If no filtering is active, show all edges
-        if (!activeNode && !showCluster) {
+        if (!clickedNode && !debouncedHoveredNode && !showCluster) {
           return data;
         }
 
@@ -96,24 +110,37 @@ const GraphSettingsController: FC<{
           }
         }
         
-        if (activeNode) {
-          if (graph.hasExtremity(edge, activeNode)) {
+        if (clickedNode) {
+          if (graph.hasExtremity(edge, clickedNode)) {
             return { ...data, zIndex: 1 };
           } else if (showSecondDegree) {
             const isSecondDegree = 
-              graph.hasEdge(activeNode, source) || graph.hasEdge(activeNode, target) ||
-              graph.neighbors(activeNode).some(neighbor => 
-                graph.hasEdge(neighbor, source) || graph.hasEdge(neighbor, target)
+              graph.neighbors(clickedNode).some(neighbor => 
+                graph.hasExtremity(edge, neighbor)
               );
             if (isSecondDegree) return { ...data, zIndex: 0 };
           }
+          // Hide edges not connected to clicked node
+          return { ...data, color: EDGE_FADE_COLOR, hidden: true };
+        } else if (debouncedHoveredNode) {
+          if (graph.hasExtremity(edge, debouncedHoveredNode)) {
+            return { ...data, zIndex: 1 };
+          } else if (showSecondDegree) {
+            const isSecondDegree = 
+              graph.neighbors(debouncedHoveredNode).some(neighbor => 
+                graph.hasExtremity(edge, neighbor)
+              );
+            if (isSecondDegree) return { ...data, zIndex: 0 };
+          }
+          // Lower opacity for edges not connected to hovered node
+          return { ...data, color: EDGE_FADE_COLOR, hidden: false };
         }
         
-        // Hide the edge if it doesn't meet any of the above conditions
-        return { ...data, hidden: true };
+        return data;
       }
     );
   }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, sigma, graph]);
+
 
   // Handle camera animation for clicked node
   useEffect(() => {

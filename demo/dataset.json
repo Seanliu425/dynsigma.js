@@ -1,0 +1,1003 @@
+{
+  "nodes": [
+    {
+      "key": "12",
+        "label": "Fiske Elementary",
+        "x": 283.6883,
+        "y": -305.35892,
+        "score": 19.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1"
+
+      }
+    ,
+    {
+      "key": "1001",
+       
+        "label": "Spark",
+        "x": 294.2227,
+        "y": -358.56143,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1002",
+       
+        "label": "Project SYNCERE",
+        "x": 264.74203,
+        "y": -230.36212,
+        "score": 16.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1018",
+       
+        "label": "Gateway to the Great Outdoors",
+        "x": 336.9594,
+        "y": -312.00894,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1019",
+       
+        "label": "Earth Force",
+        "x": 238.05391,
+        "y": -334.2428,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "13",
+       
+        "label": "CPS - Martha Ruggles",
+        "x": -238.3151,
+        "y": -300.9536,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1003",
+       
+        "label": "Girls Inc.",
+        "x": -264.76825,
+        "y": -279.6907,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "17",
+       
+        "label": "CPS - Military Academy",
+        "x": -461.38745,
+        "y": -142.3041,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1004",
+       
+        "label": "After School Matters",
+        "x": -491.88663,
+        "y": -127.99736,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "31",
+       
+        "label": "CPS - Perspectives/IIT",
+        "x": 419.12527,
+        "y": 68.93426,
+        "score": 13.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1006",
+       
+        "label": "Project STEM",
+        "x": 452.31747,
+        "y": 92.676575,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1007",
+       
+        "label": "ISTC",
+        "x": 385.354,
+        "y": 45.054092,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "32",
+       
+        "label": "Little Black Pearl",
+        "x": -498.1134,
+        "y": 177.14925,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1008",
+       
+        "label": "110 Cameras",
+        "x": -496.12338,
+        "y": 210.71498,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "39",
+       
+        "label": "UofC - Donoghue",
+        "x": -277.8395,
+        "y": 346.28983,
+        "score": 16.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1009",
+       
+        "label": "Project Exploration",
+        "x": -279.32333,
+        "y": 394.0641,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1010",
+       
+        "label": "Next Wave Stem",
+        "x": -305.0246,
+        "y": 291.1855,
+        "score": 13.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "35",
+       
+        "label": "CPS - Ida B. Wells",
+        "x": -443.2879,
+        "y": 51.360794,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1011",
+       
+        "label": "Ada S. Mckinley",
+        "x": -418.0144,
+        "y": 72.83324,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1013",
+       
+        "label": "Nuevo Stem",
+        "x": -229.91466,
+        "y": 349.4349,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "40",
+       
+        "label": "Noble Network - Gary Comer",
+        "x": 504.25116,
+        "y": -70.259895,
+        "score": 13.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1005",
+       
+        "label": "Comer Foundation",
+        "x": 527.25653,
+        "y": -37.309383,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1014",
+       
+        "label": "Toshiba",
+        "x": 479.43762,
+        "y": -103.591965,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "42",
+       
+        "label": "CPS - James Wadsworth",
+        "x": -327.31537,
+        "y": 241.09843,
+        "score": 13.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1027",
+       
+        "label": "First Lego League",
+        "x": -343.44424,
+        "y": 202.85928,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "43",
+       
+        "label": "CPS - John Foster Dulles",
+        "x": 13.292053,
+        "y": -142.90309,
+        "score": 16.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1015",
+       
+        "label": "FUSE Studio",
+        "x": -59.69999,
+        "y": -145.3807,
+        "score": 19.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.fusestudio.net"
+      }
+    ,
+    {
+      "key": "1022",
+       
+        "label": "Shedd Aquarium",
+        "x": 38.348316,
+        "y": -101.34113,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1023",
+       
+        "label": "FIRST Robotics",
+        "x": 50.1008,
+        "y": -173.36691,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "45",
+       
+        "label": "CPS - Myra Bradwell",
+        "x": -74.04884,
+        "y": -93.596176,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "46",
+       
+        "label": "CPS - Parkside",
+        "x": 275.75238,
+        "y": -169.61293,
+        "score": 13.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1016",
+       
+        "label": "Amazon Future Engineers",
+        "x": 278.83517,
+        "y": -127.42176,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "49",
+       
+        "label": "CPS - O\u0027Keeffe",
+        "x": -113.16372,
+        "y": -150.48041,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "50",
+       
+        "label": "Fuller Elementary",
+        "x": -409.64398,
+        "y": -289.99802,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1017",
+       
+        "label": "Math Circles of Chicago",
+        "x": -382.0271,
+        "y": -270.62997,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "51",
+       
+        "label": "CPS - Adam Clayton Powell",
+        "x": 216.98335,
+        "y": -220.91412,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "54",
+       
+        "label": "CPS - South Shore Fine Arts",
+        "x": -123.4029,
+        "y": 169.77605,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1021",
+       
+        "label": "Boeing",
+        "x": -152.6175,
+        "y": 186.29814,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "56",
+       
+        "label": "Kozminski Community Academy",
+        "x": -73.82281,
+        "y": -197.48453,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1045",
+       
+        "label": "Woodlawn\u0027s Inspired Community Garden",
+        "x": 146.65964,
+        "y": 20.976171,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1091",
+       
+        "label": "First Presbytarian Church",
+        "x": 118.46252,
+        "y": 39.84239,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1055",
+       
+        "label": "Museum of Science and Industry",
+        "x": 202.2214,
+        "y": 301.86902,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1125",
+       
+        "label": "Chicago Public Schools (Main)",
+        "x": 231.66615,
+        "y": 339.2231,
+        "score": 22.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.cps.edu"
+      }
+    ,
+    {
+      "key": "1068",
+       
+        "label": "Polished Pebbles Girls Mentoring Program",
+        "x": 254.52975,
+        "y": 236.67244,
+        "score": 16.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1098",
+       
+        "label": "Millhouse Engineering",
+        "x": 285.6219,
+        "y": 197.55356,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1099",
+       
+        "label": "Chicago Women in Trades",
+        "x": 230.17752,
+        "y": 192.30269,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1072",
+       
+        "label": "@rtifice",
+        "x": -265.55737,
+        "y": -41.46478,
+        "score": 19.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "http://www.artificechicago.org"
+      }
+    ,
+    {
+      "key": "1104",
+       
+        "label": "After School Matters",
+        "x": -247.93843,
+        "y": -89.59141,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1105",
+       
+        "label": "Neighborhood Schools Program",
+        "x": -277.2664,
+        "y": 10.427414,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1106",
+       
+        "label": "Hyde Park Academy",
+        "x": -222.4896,
+        "y": -8.68463,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1107",
+       
+        "label": "Bret Harte Elementary",
+        "x": -315.8459,
+        "y": -56.56676,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1073",
+       
+        "label": "MAPSCorps",
+        "x": 312.41364,
+        "y": 334.32816,
+        "score": 13.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1124",
+       
+        "label": "Digital Youth Network",
+        "x": 355.81384,
+        "y": 331.27106,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1076",
+       
+        "label": "METRO Squash NFP",
+        "x": 246.80954,
+        "y": 411.17648,
+        "score": 13.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1109",
+       
+        "label": "UChicago Charter - Woodlawn",
+        "x": 255.18852,
+        "y": 453.81522,
+        "score": 10.0,
+        "color": "#f5c7e9",
+        "tag": "K-12 School",
+        "cluster": "1",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1084",
+       
+        "label": "Illinois Science \u0026 Technology Coalition",
+        "x": 33.845806,
+        "y": -475.97748,
+        "score": 19.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.istcoalition.org"
+      }
+    ,
+    {
+      "key": "1114",
+       
+        "label": "Code Nation",
+        "x": 56.70319,
+        "y": -428.1053,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1115",
+       
+        "label": "Code Your Dreams",
+        "x": 76.60409,
+        "y": -505.24808,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1116",
+       
+        "label": "The Gray Matter Experience",
+        "x": -17.135113,
+        "y": -490.04913,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1117",
+       
+        "label": "The Darkest Horse",
+        "x": -3.6407921,
+        "y": -436.62408,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1085",
+       
+        "label": "NextWaveSTEM",
+        "x": 92.30058,
+        "y": 359.13803,
+        "score": 25.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://nextwavestem.com"
+      }
+    ,
+    {
+      "key": "1118",
+       
+        "label": "Family Focus",
+        "x": 45.416954,
+        "y": 404.74304,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1119",
+       
+        "label": "BPNCC",
+        "x": 25.866638,
+        "y": 361.39755,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1120",
+       
+        "label": "Metro Family Services",
+        "x": 84.31539,
+        "y": 295.1696,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1121",
+       
+        "label": "Urban Initiatives",
+        "x": 93.85277,
+        "y": 422.7084,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1122",
+       
+        "label": "Auburn Gresham Development Corp.",
+        "x": 40.69748,
+        "y": 316.82837,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1086",
+       
+        "label": "Gateway to the Great Outdoors",
+        "x": -267.60992,
+        "y": -426.17883,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+      }
+    ,
+    {
+      "key": "1123",
+       
+        "label": "Drake Elementary",
+        "x": -234.29541,
+        "y": -432.99573,
+        "score": 10.0,
+        "color": "#b1bc87",
+        "tag": "Community Partner",
+        "cluster": "0",
+        "URL": "https://www.southsidestemlandscape.org"
+    }
+
+
+
+  ],
+  "edges": [
+["12", "1019"],
+["12", "1018"],
+["12", "1002"],
+["12", "1001"],
+["51", "1002"],
+["46", "1002"],
+["13", "1003"],
+["17", "1004"],
+["31", "1007"],
+["31", "1006"],
+["32", "1008"],
+["39", "1013"],
+["39", "1010"],
+["39", "1009"],
+["42", "1010"],
+["35", "1011"],
+["40", "1014"],
+["40", "1005"],
+["42", "1027"],
+["43", "1023"],
+["43", "1022"],
+["43", "1015"],
+["56", "1015"],
+["49", "1015"],
+["45", "1015"],
+["46", "1016"],
+["50", "1017"],
+["54", "1021"],
+["1045", "1091"],
+["1055", "1125"],
+["1085", "1125"],
+["1076", "1125"],
+["1073", "1125"],
+["1068", "1125"],
+["1068", "1099"],
+["1068", "1098"],
+["1072", "1107"],
+["1072", "1106"],
+["1072", "1105"],
+["1072", "1104"],
+["1073", "1124"],
+["1076", "1109"],
+["1084", "1117"],
+["1084", "1116"],
+["1084", "1115"],
+["1084", "1114"],
+["1085", "1122"],
+["1085", "1121"],
+["1085", "1120"],
+["1085", "1119"],
+["1085", "1118"],
+["1086", "1123"],
+["1019", "12"],
+["1018", "12"],
+["1002", "12"],
+["1001", "12"],
+["1002", "51"],
+["1002", "46"],
+["1003", "13"],
+["1004", "17"],
+["1007", "31"],
+["1006", "31"],
+["1008", "32"],
+["1013", "39"],
+["1010", "39"],
+["1009", "39"],
+["1010", "42"],
+["1011", "35"],
+["1014", "40"],
+["1005", "40"],
+["1027", "42"],
+["1023", "43"],
+["1022", "43"],
+["1015", "43"],
+["1015", "56"],
+["1015", "49"],
+["1015", "45"],
+["1016", "46"],
+["1017", "50"],
+["1021", "54"],
+["1091", "1045"],
+["1125", "1055"],
+["1125", "1085"],
+["1125", "1076"],
+["1125", "1073"],
+["1125", "1068"],
+["1099", "1068"],
+["1098", "1068"],
+["1107", "1072"],
+["1106", "1072"],
+["1105", "1072"],
+["1104", "1072"],
+["1124", "1073"],
+["1109", "1076"],
+["1117", "1084"],
+["1116", "1084"],
+["1115", "1084"],
+["1114", "1084"],
+["1122", "1085"],
+["1121", "1085"],
+["1120", "1085"],
+["1119", "1085"],
+["1118", "1085"],
+["1123", "1086"]
+],
+  "clusters": [
+    { "key": "0", "color": "#abdee6", "clusterLabel": "Community Organization" },
+    { "key": "1", "color": "#f88379", "clusterLabel": "Schools" }
+  ],
+  "tags": [
+{ "key": "K-12 School", "image": "person.svg" },
+{ "key": "Community Partner", "image": "organization.svg" }
+  ]
+}

@@ -54,7 +54,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
       const nodeData = graph.getNodeAttributes(node);
       const isClusterVisible = clusters[nodeData.cluster];
       const isTagVisible = tags[nodeData.tag];
-      graph.setNodeAttribute(node, "hidden", !isClusterVisible || !isTagVisible);
+      graph.setNodeAttribute(node, "filteredOut", !isClusterVisible || !isTagVisible);
     });
   }, [graph, filters]);
 

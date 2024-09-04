@@ -12,9 +12,9 @@ import { FiltersState } from "../types";
  * 2. We need custom markup
  */
 const SearchField: FC<{ 
-  filters: FiltersState,
-  setSelectedNode: (node: string | null) => void // Add this prop
-}> = ({ filters, setSelectedNode }) => {
+  filters: FiltersState;
+  setClickedNode: (node: string | null) => void;
+}> = ({ filters, setClickedNode }) => {
   const sigma = useSigma();
 
   const [search, setSearch] = useState<string>("");
@@ -58,12 +58,12 @@ const SearchField: FC<{
       );
     }
 
-    setSelectedNode(selected); // Add this line to select the node
+    setClickedNode(selected);
 
     return () => {
       sigma.getGraph().setNodeAttribute(selected, "highlighted", false);
     };
-  }, [selected]);
+  }, [selected, setClickedNode, sigma]);
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const searchString = e.target.value;

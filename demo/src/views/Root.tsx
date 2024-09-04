@@ -30,7 +30,7 @@ const Root: FC = () => {
     tags: {},
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [clickedNode, setClickedNode] = useState<string | null>(null);
   const [showSecondDegree, setShowSecondDegree] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [showCluster, setShowCluster] = useState(false);
@@ -96,13 +96,13 @@ const Root: FC = () => {
       >
         <GraphSettingsController 
           hoveredNode={hoveredNode} 
-          selectedNode={selectedNode}
+          clickedNode={clickedNode}
           showSecondDegree={showSecondDegree}
           showCluster={showCluster}
         />
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
-          setSelectedNode={setSelectedNode}
+          setClickedNode={setClickedNode}
           interactionsEnabled={!overlayVisible}
         />
         <GraphDataController dataset={dataset} filters={filtersState} />
@@ -147,10 +147,10 @@ const Root: FC = () => {
               <div className="panels">
                 <SearchField 
                   filters={filtersState}
-                  setSelectedNode={setSelectedNode}
+                  setClickedNode={setClickedNode}
                 />
                 <SecondDescriptionPanel 
-                  selectedNode={selectedNode}
+                  clickedNode={clickedNode}
                   showSecondDegree={showSecondDegree}
                   setShowSecondDegree={setShowSecondDegree}
                   showCluster={showCluster}
@@ -191,7 +191,7 @@ const Root: FC = () => {
                   }}
                 />
                 <DescriptionPanel 
-                  selectedNode={selectedNode}
+                  clickedNode={clickedNode}
                   showSecondDegree={showSecondDegree}
                   setShowSecondDegree={setShowSecondDegree}
                 />

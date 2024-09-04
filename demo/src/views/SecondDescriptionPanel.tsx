@@ -5,15 +5,15 @@ import { useSigma } from "react-sigma-v2";
 import styles from "./SecondDescriptionPanel.module.css"; // We'll create this CSS module
 
 interface SecondDescriptionPanelProps {
-  selectedNode: string | null;
+  clickedNode: string | null;
   showSecondDegree: boolean;
-  setShowSecondDegree: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowSecondDegree: (value: boolean) => void;
   showCluster: boolean;
-  setShowCluster: React.Dispatch<React.SetStateAction<boolean>>;
+  setShowCluster: (value: boolean) => void;
 }
 
 const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({ 
-  selectedNode, 
+  clickedNode, 
   showSecondDegree, 
   setShowSecondDegree, 
   showCluster,
@@ -24,13 +24,13 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
 
   const firstDegreeConnections = useMemo(() => {
-    if (!selectedNode) return [];
+    if (!clickedNode) return [];
 
-    const neighbors = graph.neighbors(selectedNode);
+    const neighbors = graph.neighbors(clickedNode);
     const connections = neighbors.map(nodeId => ({
       id: nodeId,
       label: graph.getNodeAttribute(nodeId, "label") || nodeId,
-      hasSecondDegree: graph.neighbors(nodeId).some(n => n !== selectedNode && !neighbors.includes(n))
+      hasSecondDegree: graph.neighbors(nodeId).some(n => n !== clickedNode && !neighbors.includes(n))
     }));
 
     // Sort connections, prioritizing those with second-degree connections
@@ -41,25 +41,25 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     });
 
     return connections;
-  }, [selectedNode, graph]);
+  }, [clickedNode, graph]);
 
   const displayedConnections = showAllFirstDegree 
     ? firstDegreeConnections 
     : firstDegreeConnections.slice(0, 10);
 
   const secondDegreeConnections = useMemo(() => {
-    if (!selectedNode) return [];
+    if (!clickedNode) return [];
 
     const firstDegreeIds = new Set(firstDegreeConnections.map(n => n.id));
     return Array.from(new Set(
       firstDegreeConnections.flatMap(node => 
-        graph.neighbors(node.id).filter(n => n !== selectedNode && !firstDegreeIds.has(n))
+        graph.neighbors(node.id).filter(n => n !== clickedNode && !firstDegreeIds.has(n))
       )
     )).map(nodeId => ({
       id: nodeId,
       label: graph.getNodeAttribute(nodeId, "label") || nodeId,
     }));
-  }, [selectedNode, firstDegreeConnections, graph]);
+  }, [clickedNode, firstDegreeConnections, graph]);
 
   const toggleShowAllFirstDegree = () => {
     setShowAllFirstDegree(!showAllFirstDegree);
@@ -67,21 +67,19 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 
   useEffect(() => {
     setShowAllFirstDegree(false);
-  }, [selectedNode]);
+  }, [clickedNode]);
 
   useEffect(() => {
-    if (!selectedNode) {
-      // When no node is selected, automatically set showCluster to false
+    if (!clickedNode) {
       setShowCluster(false);
-      // Ensure all nodes are visible
       graph.forEachNode((node) => {
         graph.setNodeAttribute(node, "hidden", false);
       });
     }
-  }, [selectedNode, setShowCluster, graph]);
+  }, [clickedNode, setShowCluster, graph]);
 
   const handleClusterToggle = () => {
-    if (selectedNode) {
+    if (clickedNode) {
       const newShowCluster = !showCluster;
       setShowCluster(newShowCluster);
       // Note: When a node is selected, we assume the existing clustering logic will handle visibility
@@ -99,10 +97,10 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     >
       <div>
         <h3>Selected Node Information</h3>
-        <p>Name: {selectedNode ? (graph.getNodeAttribute(selectedNode, "label") || selectedNode) : "Not Selected"}</p>
-        <p>Number of Connections: {selectedNode ? firstDegreeConnections.length : "0"}</p>
+        <p>Name: {clickedNode ? (graph.getNodeAttribute(clickedNode, "label") || clickedNode) : "Not Selected"}</p>
+        <p>Number of Connections: {clickedNode ? firstDegreeConnections.length : "0"}</p>
         
-        {selectedNode && (
+        {clickedNode && (
           <>
             <h4>First-Degree Connections:</h4>
             {displayedConnections.length > 0 ? (
@@ -152,7 +150,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             )}
           </>
         )}
-        {!selectedNode && (
+        {!clickedNode && (
           <p><strong>No node selected. Select a node to see its connections.</strong></p>
         )}
       </div>
@@ -160,11 +158,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         <button
           className={`${styles.button} ${styles.clusterButton}`}
           onClick={handleClusterToggle}
-          disabled={!selectedNode}
+          disabled={!clickedNode}
         >
-          {selectedNode
+          {clickedNode
             ? (showCluster ? 'Hide' : 'Show') + ' Organizations in my Cluster'
-            : 'Please search or select a node'}
+            : 'Please select a node'}
         </button>
       </div>
     </Panel>

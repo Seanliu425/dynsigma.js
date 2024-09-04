@@ -9,10 +9,10 @@ const EDGE_FADE_COLOR = "#eee";
 
 const GraphSettingsController: FC<{
   hoveredNode: string | null;
-  selectedNode: string | null;
+  clickedNode: string | null;
   showSecondDegree: boolean;
   showCluster: boolean;
-}> = ({ children, hoveredNode, selectedNode, showSecondDegree, showCluster }) => {
+}> = ({ children, hoveredNode, clickedNode, showSecondDegree, showCluster }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const previousCamera = useRef(sigma.getCamera().getState());
@@ -33,7 +33,7 @@ const GraphSettingsController: FC<{
    * Update node and edge reducers when a node is hovered or selected, to hide unrelated nodes:
    */
   useEffect(() => {
-    const activeNode = selectedNode || debouncedHoveredNode;
+    const activeNode = clickedNode || debouncedHoveredNode;
     
     sigma.setSetting(
       "nodeReducer",
@@ -43,15 +43,15 @@ const GraphSettingsController: FC<{
           return data;
         }
 
-        // Always show the selected node
-        if (node === selectedNode) {
+        // Always show the clicked node
+        if (node === clickedNode) {
           return { ...data, zIndex: 2 }; // Higher zIndex to ensure it's on top
         }
 
-        if (showCluster && selectedNode) {
-          const selectedNodeCluster = graph.getNodeAttribute(selectedNode, "cluster");
+        if (showCluster && clickedNode) {
+          const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
           const nodeCluster = graph.getNodeAttribute(node, "cluster");
-          if (nodeCluster === selectedNodeCluster) {
+          if (nodeCluster === clickedNodeCluster) {
             return { ...data, zIndex: 1 };
           }
         }
@@ -82,16 +82,16 @@ const GraphSettingsController: FC<{
 
         const [source, target] = graph.extremities(edge);
 
-        // Always show edges connected to the selected node
-        if (selectedNode && (source === selectedNode || target === selectedNode)) {
+        // Always show edges connected to the clicked node
+        if (clickedNode && (source === clickedNode || target === clickedNode)) {
           return { ...data, zIndex: 2 }; // Higher zIndex to ensure it's on top
         }
 
-        if (showCluster && selectedNode) {
-          const selectedNodeCluster = graph.getNodeAttribute(selectedNode, "cluster");
+        if (showCluster && clickedNode) {
+          const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
           const sourceCluster = graph.getNodeAttribute(source, "cluster");
           const targetCluster = graph.getNodeAttribute(target, "cluster");
-          if (sourceCluster === selectedNodeCluster && targetCluster === selectedNodeCluster) {
+          if (sourceCluster === clickedNodeCluster && targetCluster === clickedNodeCluster) {
             return { ...data, zIndex: 1 };
           }
         }
@@ -113,17 +113,16 @@ const GraphSettingsController: FC<{
         return { ...data, hidden: true };
       }
     );
-  }, [debouncedHoveredNode, selectedNode, showSecondDegree, showCluster, sigma, graph]);
+  }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, sigma, graph]);
 
-  // Modify this useEffect to prevent zooming
+  // Handle camera animation for clicked node
   useEffect(() => {
-    if (selectedNode) {
-      const nodePosition = sigma.getNodeDisplayData(selectedNode);
+    if (clickedNode) {
+      const nodePosition = sigma.getNodeDisplayData(clickedNode);
       if (nodePosition) {
         const camera = sigma.getCamera();
         const currentState = camera.getState();
         
-        // Only update x and y, keep the same ratio (zoom level)
         camera.animate(
           { 
             x: nodePosition.x,
@@ -138,14 +137,14 @@ const GraphSettingsController: FC<{
         );
       }
     }
-  }, [selectedNode, sigma]);
+  }, [clickedNode, sigma]);
 
-  // Reset camera position when no node is selected
+  // Reset camera position when no node is clicked or hovered
   useEffect(() => {
-    if (!selectedNode && !hoveredNode) {
+    if (!clickedNode && !hoveredNode) {
       sigma.getCamera().animate(previousCamera.current, { duration: 300 });
     }
-  }, [selectedNode, hoveredNode, sigma]);
+  }, [clickedNode, hoveredNode, sigma]);
 
   return <>{children}</>;
 };

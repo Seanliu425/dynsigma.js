@@ -73,8 +73,8 @@ const Root: FC = () => {
             color: 'white',
             textAlign: 'center',
           }}>
-            <h2 style={{ fontSize: '2.5em', marginBottom: '0.5em' }}>Welcome to the Graph Visualization</h2>
-            <p style={{ fontSize: '1.2em' }}>Click anywhere to explore the graph</p>
+            <h2 style={{ fontSize: '2.5em', marginBottom: '0.5em' }}>Visualizing Your Social Network</h2>
+            <p style={{ fontSize: '1.2em' }}>Please Start by Searching for Your Program</p>
           </div>
         </div>
       )}

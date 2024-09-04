@@ -88,7 +88,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
                   {displayedConnections.map(node => (
                     <li key={node.id}>
                       {node.label}
-                      {node.hasSecondDegree && <span> (has 2nd degree connections)</span>}
+                      {node.hasSecondDegree}
                     </li>
                   ))}
                 </ul>

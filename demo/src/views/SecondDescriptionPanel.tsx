@@ -61,6 +61,8 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     }));
   }, [clickedNode, firstDegreeConnections, graph]);
 
+  const hasSecondDegreeConnections = secondDegreeConnections.length > 0;
+
   const toggleShowAllFirstDegree = () => {
     setShowAllFirstDegree(!showAllFirstDegree);
   };
@@ -129,23 +131,24 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             <button 
               onClick={() => setShowSecondDegree(!showSecondDegree)}
               className={`${styles.button} ${showSecondDegree ? styles.secondaryButton : styles.primaryButton}`}
+              disabled={!hasSecondDegreeConnections}
             >
-              {showSecondDegree ? "Hide" : "Show"} Second-Degree Connections
+              {!hasSecondDegreeConnections
+                ? "No Second-Degree Connections"
+                : showSecondDegree
+                ? "Hide Second-Degree Connections"
+                : "Show Second-Degree Connections"}
             </button>
 
-            {showSecondDegree && (
+            {showSecondDegree && hasSecondDegreeConnections && (
               <>
                 <p>Number of Second-Degree Connections: {secondDegreeConnections.length}</p>
                 <h4>Second-Degree Connections:</h4>
-                {secondDegreeConnections.length > 0 ? (
-                  <ul>
-                    {secondDegreeConnections.map(node => (
-                      <li key={node.id}>{node.label}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No second-degree connections</p>
-                )}
+                <ul>
+                  {secondDegreeConnections.map(node => (
+                    <li key={node.id}>{node.label}</li>
+                  ))}
+                </ul>
               </>
             )}
           </>
@@ -162,7 +165,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         >
           {clickedNode
             ? (showCluster ? 'Hide' : 'Show') + ' Organizations in my Cluster'
-            : 'Please select a node'}
+            : 'Please Search or Select a Node'}
         </button>
       </div>
     </Panel>

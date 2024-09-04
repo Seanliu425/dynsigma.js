@@ -133,7 +133,8 @@ header {
   z-index: 1;
   left: 0;
   right: 0;
-  height: 0;
+  height: auto; /* Changed from 0 to auto */
+  padding-bottom: 0; /* Add some padding at the bottom of the header */
 }
 header img {
   height: 1.6em;
@@ -266,11 +267,11 @@ a:hover {
  * *************
  */
 main {
-  padding: 2em var(--grid-h-padding);
+  padding:  var(--grid-h-padding); /* Reduced top padding from 2em to 1em */
   flex-grow: 1;
 }
 main > section {
-  margin: auto auto 3em;
+  margin: auto auto 2em; /* Reduced bottom margin from 3em to 2em */
   max-width: var(--grid-size);
 }
 main section.title {
@@ -288,23 +289,29 @@ main section.title h1 {
 }
 main section.showcase {
   position: relative;
-  max-width: var(--showcase-width);
+  max-width: 90%; /* Adjust if needed */
+  margin-top: 1em; /* Add a small top margin */
 }
 main section.showcase .wrapper {
   position: relative;
   box-shadow: 0 0 8px var(--grey);
   box-sizing: border-box;
   margin-bottom: 0.5em;
-}
-main section.showcase .wrapper,
-main section.showcase iframe {
   width: 100%;
-  height: var(--showcase-height);
-  max-height: var(--showcase-max-height);
-  overflow: hidden;
+  height: 600px; /* Fixed height */
+  min-height: 600px;
+  height: 80vh; /* This makes it responsive to the viewport height */
+  max-height: 800px; /* Optional: sets a maximum height */
+  overflow: hidden; /* Ensure content doesn't overflow */
 }
 main section.showcase iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   border: none;
+  overflow: hidden;
 }
 main section.showcase .caption {
   font-size: 0.8em;

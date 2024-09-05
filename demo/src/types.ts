@@ -30,3 +30,12 @@ export interface FiltersState {
   clusters: Record<string, boolean>;
   tags: Record<string, boolean>;
 }
+
+export interface Node {
+  key: string;
+  // ... other existing properties ...
+  secondDegreeConnections: Array<{
+    connectedNode: string;
+    matchingSecondDegreeNodes: string[];
+  }>;
+}

@@ -80,12 +80,12 @@ const GraphPage: FC = () => {
         </div>
       )}
       <SigmaContainer
-        graphOptions={{ type: "directed" }}
+        graphOptions={{ type: "undirected" }}
         initialSettings={{
           nodeProgramClasses: { image: getNodeProgramImage() },
           labelRenderer: drawLabel,
           defaultNodeType: "image",
-          defaultEdgeType: "arrow",
+          defaultEdgeType: "line",
           labelDensity: 0.07,
           labelGridCellSize: 60,
           labelRenderedSizeThreshold: 15,

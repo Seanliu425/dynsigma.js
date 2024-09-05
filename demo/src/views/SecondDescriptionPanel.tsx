@@ -99,74 +99,65 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     >
       <div>
         <h3>Selected Node Information</h3>
-        <p>Name: {clickedNode ? (graph.getNodeAttribute(clickedNode, "label") || clickedNode) : "Not Selected"}</p>
-        <p>Number of Connections: {clickedNode ? firstDegreeConnections.length : "0"}</p>
-        
-        {clickedNode && (
+        {clickedNode ? (
           <>
-            <h4>First-Degree Connections:</h4>
-            {displayedConnections.length > 0 ? (
-              <>
-                <ul>
-                  {displayedConnections.map(node => (
-                    <li key={node.id}>
-                      {node.label}
-                      {node.hasSecondDegree}
-                    </li>
-                  ))}
-                </ul>
-                {firstDegreeConnections.length > 10 && (
-                  <button 
-                    onClick={toggleShowAllFirstDegree}
-                    className={`${styles.button} ${styles.primaryButton}`}
-                  >
-                    {showAllFirstDegree ? "Show Less" : `Show More (${firstDegreeConnections.length - 10} more)`}
-                  </button>
-                )}
-              </>
-            ) : (
-              <p>No direct connections</p>
-            )}
-
-            <button 
-              onClick={() => setShowSecondDegree(!showSecondDegree)}
-              className={`${styles.button} ${showSecondDegree ? styles.secondaryButton : styles.primaryButton}`}
-              disabled={!hasSecondDegreeConnections}
-            >
-              {!hasSecondDegreeConnections
-                ? "No Second-Degree Connections"
-                : showSecondDegree
-                ? "Hide Second-Degree Connections"
-                : "Show Second-Degree Connections"}
-            </button>
-
-            {showSecondDegree && hasSecondDegreeConnections && (
-              <>
-                <p>Number of Second-Degree Connections: {secondDegreeConnections.length}</p>
-                <h4>Second-Degree Connections:</h4>
-                <ul>
-                  {secondDegreeConnections.map(node => (
-                    <li key={node.id}>{node.label}</li>
-                  ))}
-                </ul>
-              </>
-            )}
+            <p>Name: {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
+            <p>Tag: {graph.getNodeAttribute(clickedNode, "tag")}</p>
+            <p>Number of Connections: {firstDegreeConnections.length}</p>
+            <p>Linchpin Score: {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
           </>
+        ) : (
+          <p>No node selected</p>
         )}
-        {!clickedNode && (
-          <p><strong>No node selected. Select a node to see its connections.</strong></p>
+        
+        {/* Toggle for showing all first-degree connections */}
+        {clickedNode && firstDegreeConnections.length > 10 && (
+          <button onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}>
+            {showAllFirstDegree ? "Show Less" : "Show All"}
+          </button>
         )}
-      </div>
-      <div className={styles.panel}>
-        <button
-          className={`${styles.button} ${styles.clusterButton}`}
-          onClick={handleClusterToggle}
-          disabled={!clickedNode}
-        >
-          {clickedNode
-            ? (showCluster ? 'Hide' : 'Show') + ' Organizations in my Cluster'
-            : 'Please Search or Select a Node'}
-        </button>
+
+        {/* First-degree connections */}
+        {clickedNode && (
+          <div>
+            <h4>First-degree Connections:</h4>
+            <ul>
+              {displayedConnections.map(({ id, label }) => (
+                <li key={id}>{label || id}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Second-degree connections */}
+        {clickedNode && showSecondDegree && (
+          <div>
+            <h4>Second-degree Connections:</h4>
+            <ul>
+              {secondDegreeConnections.map(({ id, label }) => (
+                <li key={id}>{label || id}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Controls for second-degree connections and cluster */}
+        <div className={styles.controls}>
+          <button
+            className={`${styles.button} ${styles.secondDegreeButton}`}
+            onClick={() => setShowSecondDegree(!showSecondDegree)}
+            disabled={!clickedNode}
+          >
+            {showSecondDegree ? 'Hide' : 'Show'} Second-degree Connections
+          </button>
+          <button
+            className={`${styles.button} ${styles.clusterButton}`}
+            onClick={() => setShowCluster(!showCluster)}
+            disabled={!clickedNode}
+          >
+            {showCluster ? 'Hide' : 'Show'} Cluster
+          </button>
+        </div>
       </div>
     </Panel>
   );

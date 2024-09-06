@@ -12,6 +12,11 @@ interface SecondDescriptionPanelProps {
   setShowCluster: (value: boolean) => void;
 }
 
+interface Connection {
+  id: string;
+  label: string;
+}
+
 const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({ 
   clickedNode, 
   showSecondDegree, 
@@ -22,6 +27,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
+  const [showAllSecondDegree, setShowAllSecondDegree] = useState(false);
 
   const firstDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
@@ -51,7 +57,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     if (!clickedNode) return [];
 
     const firstDegreeIds = new Set(firstDegreeConnections.map(n => n.id));
-    return Array.from(new Set(
+    const connections = Array.from(new Set(
       firstDegreeConnections.flatMap(node => 
         graph.neighbors(node.id).filter(n => n !== clickedNode && !firstDegreeIds.has(n))
       )
@@ -59,7 +65,13 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
       id: nodeId,
       label: graph.getNodeAttribute(nodeId, "label") || nodeId,
     }));
+
+    return connections.sort((a, b) => a.label.localeCompare(b.label));
   }, [clickedNode, firstDegreeConnections, graph]);
+
+  const displayedSecondDegreeConnections = showAllSecondDegree 
+    ? secondDegreeConnections 
+    : secondDegreeConnections.slice(0, 10);
 
   const hasSecondDegreeConnections = secondDegreeConnections.length > 0;
 
@@ -69,6 +81,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 
   useEffect(() => {
     setShowAllFirstDegree(false);
+    setShowAllSecondDegree(false);
   }, [clickedNode]);
 
   useEffect(() => {
@@ -112,7 +125,10 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         
         {/* Toggle for showing all first-degree connections */}
         {clickedNode && firstDegreeConnections.length > 10 && (
-          <button onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}>
+          <button 
+            className={styles.showAllButton}
+            onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}
+          >
             {showAllFirstDegree ? "Show Less" : "Show All"}
           </button>
         )}
@@ -134,10 +150,18 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           <div>
             <h4>Second-degree Connections:</h4>
             <ul>
-              {secondDegreeConnections.map(({ id, label }) => (
+              {displayedSecondDegreeConnections.map(({ id, label }: Connection) => (
                 <li key={id}>{label || id}</li>
               ))}
             </ul>
+            {secondDegreeConnections.length > 10 && (
+              <button 
+                className={styles.showAllButton}
+                onClick={() => setShowAllSecondDegree(!showAllSecondDegree)}
+              >
+                {showAllSecondDegree ? "Show Less" : "Show All"}
+              </button>
+            )}
           </div>
         )}
 

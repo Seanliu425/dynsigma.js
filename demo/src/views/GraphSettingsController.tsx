@@ -100,7 +100,15 @@ const GraphSettingsController: FC<{
         if (isNodeVisible(node)) {
           return { ...data, hidden: false };
         }
-        return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: true };
+        if (clickedNode) {
+          // When a node is clicked, hide non-visible nodes
+          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: true };
+        } else if (debouncedHoveredNode) {
+          // When a node is hovered, fade non-visible nodes
+          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };
+        }
+        // Default case: node is visible
+        return { ...data, hidden: false };
       }
     );
 

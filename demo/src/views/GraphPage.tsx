@@ -156,6 +156,8 @@ const GraphPage: FC = () => {
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
                 />
+                {/* Comment out or remove the following panels */}
+                {/*
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}
@@ -190,9 +192,7 @@ const GraphPage: FC = () => {
                     }));
                   }}
                 />
-                <DescriptionPanel 
-               
-                />
+                */}
               </div>
             </div>
           </>

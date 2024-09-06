@@ -4,7 +4,7 @@ export const checkSecondDegreeConnections = (graph: Graph) => {
   const nodeEdgeColors = new Map();
 
   graph.forEachNode((nodeKey) => {
-    const nodeTag = graph.getNodeAttribute(nodeKey, "tag");
+    const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
     const connectedNodes = graph.neighbors(nodeKey);
     let redEdges = 0;
     let totalEdges = connectedNodes.length;
@@ -15,7 +15,7 @@ export const checkSecondDegreeConnections = (graph: Graph) => {
       const secondDegreeNodes = graph.neighbors(connectedNodeKey);
       const hasMatchingSecondDegreeNode = secondDegreeNodes.some(secondDegreeNodeKey => 
         secondDegreeNodeKey !== nodeKey && 
-        graph.getNodeAttribute(secondDegreeNodeKey, "tag") === nodeTag
+        graph.getNodeAttribute(secondDegreeNodeKey, "cluster") === nodeCluster
       );
       
       const color = hasMatchingSecondDegreeNode ? "#66BB6A" : "#FF0000";

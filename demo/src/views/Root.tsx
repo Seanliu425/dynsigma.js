@@ -15,6 +15,7 @@ import SearchField from "./SearchField";
 import drawLabel from "../canvas-utils";
 import GraphTitle from "./GraphTitle";
 import TagsPanel from "./TagsPanel";
+import HowTo from "./HowTo";
 
 import "react-sigma-v2/lib/react-sigma-v2.css";
 import { GrClose } from "react-icons/gr";
@@ -75,7 +76,7 @@ const Root: FC = () => {
             textAlign: 'center',
           }}>
             <h2 style={{ fontSize: '2.5em', marginBottom: '0.5em' }}>Visualizing Your Social Network</h2>
-            <p style={{ fontSize: '1.2em' }}>Please Start by Searching for Your Program</p>
+            <p style={{ fontSize: '1.2em' }}>Please start by exploring the "How To" Panel</p>
           </div>
         </div>
       )}
@@ -156,6 +157,8 @@ const Root: FC = () => {
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
                 />
+                {/* ClustersPanel and TagsPanel are commented out */}
+                {/*
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}
@@ -190,6 +193,8 @@ const Root: FC = () => {
                     }));
                   }}
                 />
+                */}
+                <HowTo />
                 <DescriptionPanel />
               </div>
             </div>

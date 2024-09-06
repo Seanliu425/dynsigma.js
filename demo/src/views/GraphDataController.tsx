@@ -12,7 +12,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     const nodeEdgeColors = new Map();
 
     graph.forEachNode((nodeKey) => {
-      const nodeTag = graph.getNodeAttribute(nodeKey, "tag");
+      const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
       const connectedNodes = graph.neighbors(nodeKey);
       let redEdges = 0;
       let totalEdges = connectedNodes.length;
@@ -23,7 +23,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
         const secondDegreeNodes = graph.neighbors(connectedNodeKey);
         const hasMatchingSecondDegreeNode = secondDegreeNodes.some(secondDegreeNodeKey => 
           secondDegreeNodeKey !== nodeKey && 
-          graph.getNodeAttribute(secondDegreeNodeKey, "tag") === nodeTag
+          graph.getNodeAttribute(secondDegreeNodeKey, "cluster") === nodeCluster
         );
         
         const color = hasMatchingSecondDegreeNode ? "#66BB6A" : "#FF0000";
@@ -70,7 +70,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     const minDegree = Math.min(...scores);
     const maxDegree = Math.max(...scores);
     const MIN_NODE_SIZE = 3;
-    const MAX_NODE_SIZE = 30;
+    const MAX_NODE_SIZE = 20;
     graph.forEachNode((node) =>
       graph.setNodeAttribute(
         node,

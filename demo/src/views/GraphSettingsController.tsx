@@ -25,12 +25,12 @@ const GraphSettingsController: FC<{
     const connections = new Map<string, Set<string>>();
 
     graph.forEachNode((nodeKey) => {
-      const nodeTag = graph.getNodeAttribute(nodeKey, "tag");
+      const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
       const secondDegreeMatches = new Set<string>();
 
       graph.forEachNeighbor(nodeKey, (neighborKey) => {
         graph.forEachNeighbor(neighborKey, (secondDegreeKey) => {
-          if (secondDegreeKey !== nodeKey && graph.getNodeAttribute(secondDegreeKey, "tag") === nodeTag) {
+          if (secondDegreeKey !== nodeKey && graph.getNodeAttribute(secondDegreeKey, "cluster") === nodeCluster) {
             secondDegreeMatches.add(neighborKey);
           }
         });
@@ -118,11 +118,11 @@ const GraphSettingsController: FC<{
         const [source, target] = graph.extremities(edge);
         
         if (clickedNode && source === clickedNode) {
-          const targetTag = graph.getNodeAttribute(target, "tag");
-          const clickedNodeTag = graph.getNodeAttribute(clickedNode, "tag");
+          const targetCluster = graph.getNodeAttribute(target, "cluster");
+          const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
           
           const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
-            neighbor !== clickedNode && graph.getNodeAttribute(neighbor, "tag") === clickedNodeTag
+            neighbor !== clickedNode && graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
           );
 
           const color = hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR;

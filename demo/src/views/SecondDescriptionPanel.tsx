@@ -51,7 +51,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 
   const displayedConnections = showAllFirstDegree 
     ? firstDegreeConnections 
-    : firstDegreeConnections.slice(0, 10);
+    : firstDegreeConnections.slice(0, 5);
 
   const secondDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
@@ -71,7 +71,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 
   const displayedSecondDegreeConnections = showAllSecondDegree 
     ? secondDegreeConnections 
-    : secondDegreeConnections.slice(0, 10);
+    : secondDegreeConnections.slice(0, 5);
 
   const hasSecondDegreeConnections = secondDegreeConnections.length > 0;
 
@@ -114,10 +114,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         <h3>Selected Node Information</h3>
         {clickedNode ? (
           <>
-            <p>Name: {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
-            <p>Tag: {graph.getNodeAttribute(clickedNode, "tag")}</p>
-            <p>Number of Connections: {firstDegreeConnections.length}</p>
-            <p>Linchpin Score: {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
+            <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
+            <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
+            <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
+            <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
+            <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
           </>
         ) : (
           <p>No node selected</p>
@@ -134,15 +135,14 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
                 <li key={id}>{label || id}</li>
               ))}
             </ul>
-                    {/* Toggle for showing all first-degree connections */}
-        {clickedNode && firstDegreeConnections.length > 10 && (
-          <button 
-            className={styles.showAllButton}
-            onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}
-          >
-            {showAllFirstDegree ? "Show Less" : "Show All"}
-          </button>
-        )}
+            {firstDegreeConnections.length > 5 && (
+              <button 
+                className={styles.showAllButton}
+                onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}
+              >
+                {showAllFirstDegree ? "Show Less" : `Show All (${firstDegreeConnections.length - 5})`}
+              </button>
+            )}
           </div>
         )}
 
@@ -155,12 +155,12 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
                 <li key={id}>{label || id}</li>
               ))}
             </ul>
-            {secondDegreeConnections.length > 10 && (
+            {secondDegreeConnections.length > 5 && (
               <button 
                 className={styles.showAllButton}
                 onClick={() => setShowAllSecondDegree(!showAllSecondDegree)}
               >
-                {showAllSecondDegree ? "Show Less" : "Show All"}
+                {showAllSecondDegree ? "Show Less" : `Show All (${secondDegreeConnections.length - 5})`}
               </button>
             )}
           </div>
@@ -180,7 +180,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             onClick={() => setShowCluster(!showCluster)}
             disabled={!clickedNode}
           >
-            {showCluster ? 'Hide' : 'Show'} Cluster
+            {showCluster ? 'Hide' : 'Show'} Other Similar Providers
           </button>
         </div>
       </div>

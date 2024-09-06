@@ -114,3 +114,23 @@ export class TypedEventEmitter<Events extends EventsMapping> extends (EventEmitt
     this.rawEmitter = this as EventEmitter;
   }
 }
+export interface Cluster {
+  key: string;
+  color: string;
+  clusterLabel: string;
+}
+
+export interface Tag {
+  key: string;
+  image: string;
+}
+
+// New extended types
+export interface ExtendedCluster extends Cluster {
+  image: string;
+}
+
+export interface ExtendedTag extends Tag {
+  color: string;
+}
+

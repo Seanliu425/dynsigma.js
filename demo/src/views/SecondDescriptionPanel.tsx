@@ -123,15 +123,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           <p>No node selected</p>
         )}
         
-        {/* Toggle for showing all first-degree connections */}
-        {clickedNode && firstDegreeConnections.length > 10 && (
-          <button 
-            className={styles.showAllButton}
-            onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}
-          >
-            {showAllFirstDegree ? "Show Less" : "Show All"}
-          </button>
-        )}
+
 
         {/* First-degree connections */}
         {clickedNode && (
@@ -142,6 +134,15 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
                 <li key={id}>{label || id}</li>
               ))}
             </ul>
+                    {/* Toggle for showing all first-degree connections */}
+        {clickedNode && firstDegreeConnections.length > 10 && (
+          <button 
+            className={styles.showAllButton}
+            onClick={() => setShowAllFirstDegree(!showAllFirstDegree)}
+          >
+            {showAllFirstDegree ? "Show Less" : "Show All"}
+          </button>
+        )}
           </div>
         )}
 

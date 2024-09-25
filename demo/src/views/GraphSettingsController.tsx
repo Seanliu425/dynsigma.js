@@ -187,10 +187,10 @@ const GraphSettingsController: FC<{
 
   // Reset camera position when no node is clicked or hovered
   useEffect(() => {
-    if (!clickedNode && !hoveredNode) {
+    if (!clickedNode) {
       sigma.getCamera().animate(previousCamera.current, { duration: 300 });
     }
-  }, [clickedNode, hoveredNode, sigma]);
+  }, [clickedNode,, sigma]);
 
   const previousCamera = useRef(sigma.getCamera().getState());
 

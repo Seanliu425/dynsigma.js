@@ -157,8 +157,7 @@ const Root: FC = () => {
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
                 />
-                {/* ClustersPanel and TagsPanel are commented out */}
-                {/*
+
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}
@@ -193,7 +192,7 @@ const Root: FC = () => {
                     }));
                   }}
                 />
-                */}
+
                 <HowTo />
                 <DescriptionPanel />
               </div>

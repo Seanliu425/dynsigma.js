@@ -7,6 +7,7 @@ import { checkSecondDegreeConnections } from "../utils/graphUtils";
 
 const NODE_FADE_COLOR = "#bbb";
 const EDGE_FADE_COLOR = "#CCCCCC";
+const EDGE_HOVER_COLOR = "#999999";
 const EDGE_GREEN_COLOR = "#66BB6A";
 const EDGE_RED_COLOR = "#FF0000";
 
@@ -67,70 +68,116 @@ const GraphSettingsController: FC<{
 
 
   useEffect(() => {
-    // Helper function to determine if a node is visible
-    const isNodeVisible = (node: string) => {
-      if (!clickedNode && !debouncedHoveredNode && !showCluster) return true;
-      if (node === clickedNode) return true;
-      if (showCluster && clickedNode) {
-        const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
-        const nodeCluster = graph.getNodeAttribute(node, "cluster");
-        if (nodeCluster === clickedNodeCluster) return true;
-      }
-      if (clickedNode) {
-        if (graph.hasEdge(node, clickedNode) || graph.hasEdge(clickedNode, node)) return true;
-        if (showSecondDegree) {
-          return graph.neighbors(clickedNode).some(neighbor => 
-            graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
-          );
-        }
-      } else if (debouncedHoveredNode) {
-        if (node === debouncedHoveredNode || graph.hasEdge(node, debouncedHoveredNode) || graph.hasEdge(debouncedHoveredNode, node)) return true;
-        if (showSecondDegree) {
-          return graph.neighbors(debouncedHoveredNode).some(neighbor => 
-            graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
-          );
-        }
-      }
-      return false;
-    };
-
     sigma.setSetting(
       "nodeReducer",
       (node, data) => {
-        if (isNodeVisible(node)) {
+        // First, check if the node is filtered out
+        if (graph.getNodeAttribute(node, "filteredOut")) {
+          return { ...data, hidden: true };
+        }
+
+        if (!clickedNode && !debouncedHoveredNode && !showCluster) {
+          // No node is clicked or hovered, show all non-filtered nodes
           return { ...data, hidden: false };
         }
-        if (clickedNode) {
-          // When a node is clicked, hide non-visible nodes
-          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: true };
-        } else if (debouncedHoveredNode) {
-          // When a node is hovered, fade non-visible nodes
-          return { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };
+
+        const isVisible = (targetNode: string) => {
+          if (clickedNode) {
+            if (targetNode === clickedNode) return true;
+            if (showCluster) {
+              const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
+              const nodeCluster = graph.getNodeAttribute(targetNode, "cluster");
+              if (nodeCluster === clickedNodeCluster) return true;
+            }
+            if (graph.hasEdge(targetNode, clickedNode) || graph.hasEdge(clickedNode, targetNode)) return true;
+            if (showSecondDegree) {
+              return graph.neighbors(clickedNode).some(neighbor => 
+                graph.hasEdge(targetNode, neighbor) || graph.hasEdge(neighbor, targetNode)
+              );
+            }
+          } else if (debouncedHoveredNode) {
+            if (targetNode === debouncedHoveredNode) return true;
+            if (graph.hasEdge(targetNode, debouncedHoveredNode) || graph.hasEdge(debouncedHoveredNode, targetNode)) return true;
+            if (showSecondDegree) {
+              return graph.neighbors(debouncedHoveredNode).some(neighbor => 
+                graph.hasEdge(targetNode, neighbor) || graph.hasEdge(neighbor, targetNode)
+              );
+            }
+          }
+          return false;
+        };
+
+        if (isVisible(node)) {
+          return { ...data, hidden: false };
+        } else {
+          // Node is not visible
+          return clickedNode 
+            ? { ...data, hidden: true }  // Hide when clicked
+            : { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };  // Fade when hovered
         }
-        // Default case: node is visible
-        return { ...data, hidden: false };
       }
     );
 
     sigma.setSetting(
       "edgeReducer",
       (edge, data) => {
-        const [source, target] = graph.extremities(edge);
-        
-        if (clickedNode && source === clickedNode) {
-          const targetCluster = graph.getNodeAttribute(target, "cluster");
-          const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
-          
-          const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
-            neighbor !== clickedNode && graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
-          );
+        const source = graph.source(edge);
+        const target = graph.target(edge);
 
-          const color = hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR;
-          return { ...data, color, size: 2, hidden: false };
+        // Check if either the source or target node is filtered out
+        if (graph.getNodeAttribute(source, "filteredOut") || graph.getNodeAttribute(target, "filteredOut")) {
+          return { ...data, hidden: true };
         }
-        
-        // All other edges, including incoming edges to the clicked node
-        return { ...data, color: EDGE_FADE_COLOR, size: 1, hidden: false };
+
+        if (!clickedNode && !debouncedHoveredNode) {
+          // No node is clicked or hovered, show all edges connected to non-filtered nodes
+          return { ...data, hidden: false };
+        }
+
+        const isVisible = (node: string) => {
+          if (clickedNode) {
+            return node === clickedNode || graph.hasEdge(node, clickedNode) || graph.hasEdge(clickedNode, node);
+          } else if (debouncedHoveredNode) {
+            return node === debouncedHoveredNode || graph.hasEdge(node, debouncedHoveredNode) || graph.hasEdge(debouncedHoveredNode, node);
+          }
+          return false;
+        };
+
+        if (isVisible(source) || isVisible(target)) {
+          if (clickedNode) {
+            const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
+            
+            // Special case for "School" cluster
+            if (clickedNodeCluster === "School") {
+              return { ...data, hidden: false }; // Use default color
+            }
+            
+            // For other clusters, color based on second degree connections within the same cluster
+            const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
+              neighbor !== source && 
+              neighbor !== clickedNode && 
+              graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
+            ) || graph.neighbors(source).some(neighbor => 
+              neighbor !== target && 
+              neighbor !== clickedNode && 
+              graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
+            );
+
+            return { 
+              ...data, 
+              color: hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR, 
+              hidden: false 
+            };
+          } else {
+            // For hover, use the darker grey color
+            return { ...data, color: EDGE_HOVER_COLOR, hidden: false };
+          }
+        } else {
+          // Edge is not connected to the clicked/hovered node
+          return clickedNode 
+            ? { ...data, hidden: true }  // Hide when clicked
+            : { ...data, color: EDGE_FADE_COLOR, hidden: false };  // Fade when hovered
+        }
       }
     );
 

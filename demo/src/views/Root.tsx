@@ -50,6 +50,12 @@ const Root: FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    // Reset showSecondDegree and showCluster when a new node is clicked
+    setShowSecondDegree(false);
+    setShowCluster(false);
+  }, [clickedNode]);
+
   if (!dataset) return null;
 
   return (

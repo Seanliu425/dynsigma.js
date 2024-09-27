@@ -46,7 +46,7 @@ const TagsPanel: FC<{
     <Panel
       title={
         <>
-          <MdCategory className="text-muted" /> Categories
+          <MdCategory className="text-muted" /> School Network
           {visibleTagsCount < tags.length ? (
             <span className="text-muted text-small">
               {" "}

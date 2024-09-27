@@ -106,32 +106,61 @@ const GraphSettingsController: FC<{
         }
 
         if (clickedNode) {
-          if (isSchoolCluster(clickedNode)) {
-            // For School cluster, show all edges with default color
-            if (source === clickedNode || target === clickedNode) {
-              return { ...data, hidden: false }; // Use default color
-            } else {
-              return { ...data, hidden: true };
-            }
-          } else {
-            // For other clusters, use existing logic
-            const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
-            const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
-              neighbor !== source && 
-              neighbor !== clickedNode && 
-              graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
-            ) || graph.neighbors(source).some(neighbor => 
-              neighbor !== target && 
-              neighbor !== clickedNode && 
-              graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
+          const isSchool = graph.getNodeAttribute(clickedNode, "cluster") === "School";
+          const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
+
+          const isFirstDegree = (node: string) => 
+            node === clickedNode || graph.hasEdge(node, clickedNode) || graph.hasEdge(clickedNode, node);
+
+          const isSecondDegree = (node: string) => 
+            graph.neighbors(clickedNode).some(neighbor => 
+              graph.hasEdge(node, neighbor) || graph.hasEdge(neighbor, node)
             );
 
-            return { 
-              ...data, 
-              color: hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR, 
-              hidden: false 
-            };
+          const isVisible = (node: string) => {
+            if (node === clickedNode) return true;
+            if (isFirstDegree(node)) return true;
+            if (showSecondDegree && isSecondDegree(node)) return true;
+            if (showCluster) {
+              return graph.getNodeAttribute(node, isSchool ? "tag" : "cluster") === 
+                     graph.getNodeAttribute(clickedNode, isSchool ? "tag" : "cluster");
+            }
+            return false;
+          };
+
+          if (isVisible(source) && isVisible(target)) {
+            if (isSchool) {
+              return { ...data, hidden: false }; // Use default color for School cluster
+            } else {
+              if (isFirstDegree(source) && isFirstDegree(target)) {
+                // For first-degree connections, use existing logic for coloring
+                const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
+                  neighbor !== source && 
+                  neighbor !== clickedNode && 
+                  graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
+                ) || graph.neighbors(source).some(neighbor => 
+                  neighbor !== target && 
+                  neighbor !== clickedNode && 
+                  graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
+                );
+
+                return { 
+                  ...data, 
+                  color: hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR, 
+                  hidden: false 
+                };
+              } else if (showSecondDegree && (isSecondDegree(source) || isSecondDegree(target))) {
+                // For second-degree connections, use default color
+                return { ...data, hidden: false };
+              } else if (showCluster) {
+                // For cluster connections, use default color
+                return { ...data, hidden: false };
+              }
+            }
           }
+          
+          // If not visible, hide the edge
+          return { ...data, hidden: true };
         } else if (debouncedHoveredNode) {
           // For hover, only show edges directly connected to the hovered node
           if (source === debouncedHoveredNode || target === debouncedHoveredNode) {

@@ -88,7 +88,10 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     if (!clickedNode) {
       setShowCluster(false);
       graph.forEachNode((node) => {
-        graph.setNodeAttribute(node, "hidden", false);
+        // Only set hidden to false if it was not already hidden by filters
+        if (!graph.getNodeAttribute(node, "filteredOut")) {
+          graph.setNodeAttribute(node, "hidden", false);
+        }
       });
     }
   }, [clickedNode, setShowCluster, graph]);
@@ -100,6 +103,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
       // Note: When a node is selected, we assume the existing clustering logic will handle visibility
     }
   };
+
+  const isSchool = clickedNode ? graph.getNodeAttribute(clickedNode, "cluster") === "School" : false;
+  const clusterButtonText = isSchool 
+    ? `${showCluster ? 'Hide' : 'Show'} Other Schools in Network`
+    : `${showCluster ? 'Hide' : 'Show'} Other Similar Providers`;
 
   return (
     <Panel
@@ -180,7 +188,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             onClick={() => setShowCluster(!showCluster)}
             disabled={!clickedNode}
           >
-            {showCluster ? 'Hide' : 'Show'} Other Similar Providers
+            {clusterButtonText}
           </button>
         </div>
       </div>

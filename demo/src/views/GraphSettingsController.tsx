@@ -3,11 +3,10 @@ import { FC, useEffect, useRef, useState, useCallback } from "react";
 
 import { drawHover } from "../canvas-utils";
 import useDebounce from "../use-debounce";
-import { checkSecondDegreeConnections } from "../utils/graphUtils";
 
 const NODE_FADE_COLOR = "#bbb";
 const EDGE_FADE_COLOR = "#CCCCCC";
-const EDGE_HOVER_COLOR = "#999999";
+const EDGE_HOVER_COLOR = "#FCD12A"; // New yellow color
 const EDGE_GREEN_COLOR = "#66BB6A";
 const EDGE_RED_COLOR = "#FF0000";
 
@@ -22,50 +21,21 @@ const GraphSettingsController: FC<{
   const graph = sigma.getGraph();
   const [nodeSecondDegreeConnections, setNodeSecondDegreeConnections] = useState<Map<string, Set<string>>>(new Map());
 
-  const checkSecondDegreeConnections = useCallback(() => {
-    const connections = new Map<string, Set<string>>();
-
-    graph.forEachNode((nodeKey) => {
-      const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
-      const secondDegreeMatches = new Set<string>();
-
-      graph.forEachNeighbor(nodeKey, (neighborKey) => {
-        graph.forEachNeighbor(neighborKey, (secondDegreeKey) => {
-          if (secondDegreeKey !== nodeKey && graph.getNodeAttribute(secondDegreeKey, "cluster") === nodeCluster) {
-            secondDegreeMatches.add(neighborKey);
-          }
-        });
-      });
-
-      connections.set(nodeKey, secondDegreeMatches);
-    });
-
-    return connections;
+  const isSchoolCluster = useCallback((nodeId: string) => {
+    return graph.getNodeAttribute(nodeId, "cluster") === "School";
   }, [graph]);
 
-  useEffect(() => {
-    const connections = checkSecondDegreeConnections();
-    setNodeSecondDegreeConnections(connections);
-  }, [checkSecondDegreeConnections]);
+  const getRelevantAttribute = useCallback((nodeId: string) => {
+    return isSchoolCluster(nodeId) ? "tag" : "cluster";
+  }, [isSchoolCluster]);
 
-  const debouncedHoveredNode = useDebounce(hoveredNode, 40);
-
-  /**
-   * Initialize here settings that require to know the graph and/or the sigma
-   * instance:
-   */
   useEffect(() => {
     sigma.setSetting("hoverRenderer", (context, data, settings) =>
       drawHover(context, { ...sigma.getNodeDisplayData(data.key), ...data }, settings),
     );
   }, [sigma, graph]);
 
-  /**
-   * Update node and edge reducers when a node is hovered or selected, to hide unrelated nodes:
-   */
-  
-
-
+  const debouncedHoveredNode = useDebounce(hoveredNode, 40);
 
   useEffect(() => {
     sigma.setSetting(
@@ -85,9 +55,10 @@ const GraphSettingsController: FC<{
           if (clickedNode) {
             if (targetNode === clickedNode) return true;
             if (showCluster) {
-              const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
-              const nodeCluster = graph.getNodeAttribute(targetNode, "cluster");
-              if (nodeCluster === clickedNodeCluster) return true;
+              const relevantAttribute = getRelevantAttribute(clickedNode);
+              const clickedNodeValue = graph.getNodeAttribute(clickedNode, relevantAttribute);
+              const nodeValue = graph.getNodeAttribute(targetNode, relevantAttribute);
+              if (nodeValue === clickedNodeValue) return true;
             }
             if (graph.hasEdge(targetNode, clickedNode) || graph.hasEdge(clickedNode, targetNode)) return true;
             if (showSecondDegree) {
@@ -134,25 +105,17 @@ const GraphSettingsController: FC<{
           return { ...data, hidden: false };
         }
 
-        const isVisible = (node: string) => {
-          if (clickedNode) {
-            return node === clickedNode || graph.hasEdge(node, clickedNode) || graph.hasEdge(clickedNode, node);
-          } else if (debouncedHoveredNode) {
-            return node === debouncedHoveredNode || graph.hasEdge(node, debouncedHoveredNode) || graph.hasEdge(debouncedHoveredNode, node);
-          }
-          return false;
-        };
-
-        if (isVisible(source) || isVisible(target)) {
-          if (clickedNode) {
-            const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
-            
-            // Special case for "School" cluster
-            if (clickedNodeCluster === "School") {
+        if (clickedNode) {
+          if (isSchoolCluster(clickedNode)) {
+            // For School cluster, show all edges with default color
+            if (source === clickedNode || target === clickedNode) {
               return { ...data, hidden: false }; // Use default color
+            } else {
+              return { ...data, hidden: true };
             }
-            
-            // For other clusters, color based on second degree connections within the same cluster
+          } else {
+            // For other clusters, use existing logic
+            const clickedNodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
             const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
               neighbor !== source && 
               neighbor !== clickedNode && 
@@ -168,16 +131,18 @@ const GraphSettingsController: FC<{
               color: hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR, 
               hidden: false 
             };
-          } else {
-            // For hover, use the darker grey color
-            return { ...data, color: EDGE_HOVER_COLOR, hidden: false };
           }
-        } else {
-          // Edge is not connected to the clicked/hovered node
-          return clickedNode 
-            ? { ...data, hidden: true }  // Hide when clicked
-            : { ...data, color: EDGE_FADE_COLOR, hidden: false };  // Fade when hovered
+        } else if (debouncedHoveredNode) {
+          // For hover, only show edges directly connected to the hovered node
+          if (source === debouncedHoveredNode || target === debouncedHoveredNode) {
+            return { ...data, color: EDGE_HOVER_COLOR, hidden: false };
+          } else {
+            return { ...data, hidden: true };
+          }
         }
+
+        // Default case: show the edge with default styling
+        return { ...data, hidden: false };
       }
     );
 
@@ -185,7 +150,7 @@ const GraphSettingsController: FC<{
       const linchpinScore = calculateLinchpinScore(clickedNode);
       onLinchpinScoreCalculated?.(linchpinScore);
     }
-  }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, sigma, graph, nodeSecondDegreeConnections]);
+  }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, sigma, graph, isSchoolCluster, getRelevantAttribute]);
 
   const calculateLinchpinScore = useCallback((nodeId: string) => {
     let redEdges = 0;
@@ -237,7 +202,7 @@ const GraphSettingsController: FC<{
     if (!clickedNode) {
       sigma.getCamera().animate(previousCamera.current, { duration: 300 });
     }
-  }, [clickedNode,, sigma]);
+  }, [clickedNode, sigma]);
 
   const previousCamera = useRef(sigma.getCamera().getState());
 

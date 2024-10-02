@@ -59,6 +59,7 @@ const SearchField: FC<{
     }
 
     setClickedNode(selected);
+    setSelected(null); // Reset selected after setting clicked node
 
     return () => {
       sigma.getGraph().setNodeAttribute(selected, "highlighted", false);
@@ -69,9 +70,9 @@ const SearchField: FC<{
     const searchString = e.target.value;
     const valueItem = values.find((value) => value.label === searchString);
     if (valueItem) {
-      setSearch(valueItem.label);
-      setValues([]);
       setSelected(valueItem.id);
+      setSearch(""); // Reset the search text
+      setValues([]); // Clear the dropdown
     } else {
       setSelected(null);
       setSearch(searchString);
@@ -80,8 +81,9 @@ const SearchField: FC<{
 
   const onKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && values.length) {
-      setSearch(values[0].label);
       setSelected(values[0].id);
+      setSearch(""); // Reset the search text
+      setValues([]); // Clear the dropdown
     }
   };
 

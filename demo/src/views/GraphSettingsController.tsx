@@ -31,7 +31,11 @@ const GraphSettingsController: FC<{
 
   useEffect(() => {
     sigma.setSetting("hoverRenderer", (context, data, settings) =>
-      drawHover(context, { ...sigma.getNodeDisplayData(data.key), ...data }, settings),
+      drawHover(context, { 
+        ...sigma.getNodeDisplayData(data.key), 
+        ...data, 
+        community: graph.getNodeAttribute(data.key, "community") 
+      }, settings),
     );
   }, [sigma, graph]);
 

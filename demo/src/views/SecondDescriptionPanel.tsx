@@ -125,22 +125,8 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           <>
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
             <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
-            <div className={styles.infoToggle}>
-              <div className={styles.infoText}>
-                {showCommunity ? (
-                  <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
-                ) : (
-                  <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
-                )}
-              </div>
-              <button 
-                className={styles.toggleButton} 
-                onClick={() => setShowCommunity(!showCommunity)}
-              >
-                <BsArrowRepeat />
-                {showCommunity ? "Network" : "Community"}
-              </button>
-            </div>
+            <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
+            <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
             <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
             <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
           </>

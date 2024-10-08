@@ -16,6 +16,7 @@ import drawLabel from "../canvas-utils";
 import GraphTitle from "./GraphTitle";
 import TagsPanel from "./TagsPanel";
 import HowTo from "./HowTo";
+import CommunitiesPanel from "./CommunitiesPanel";
 
 import "react-sigma-v2/lib/react-sigma-v2.css";
 import { GrClose } from "react-icons/gr";
@@ -29,6 +30,8 @@ const Root: FC = () => {
   const [filtersState, setFiltersState] = useState<FiltersState>({
     clusters: {},
     tags: {},
+    communities: {},  // Add this line
+    networkAttribute: "tag"
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [clickedNode, setClickedNode] = useState<string | null>(null);
@@ -45,6 +48,8 @@ const Root: FC = () => {
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
+          communities: mapValues(keyBy(dataset.tags, "key"), constant(true)),  // Add this line, using tags as communities for now
+          networkAttribute: "tag"
         });
         requestAnimationFrame(() => setDataReady(true));
       });
@@ -195,6 +200,25 @@ const Root: FC = () => {
                     setFiltersState((filters) => ({
                       ...filters,
                       tags: filters.tags[tag] ? omit(filters.tags, tag) : { ...filters.tags, [tag]: true },
+                    }));
+                  }}
+                />
+                <CommunitiesPanel
+                  communities={dataset?.communities || []}
+                  filters={filtersState}
+                  setCommunities={(communities) =>
+                    setFiltersState((filters) => ({
+                      ...filters,
+                      communities,
+                    }))
+                  }
+                  toggleCommunity={(community) => {
+                    setFiltersState((filters) => ({
+                      ...filters,
+                      communities: {
+                        ...filters.communities,
+                        [community]: !filters.communities[community],
+                      },
                     }));
                   }}
                 />

@@ -28,6 +28,8 @@ const GraphPage: FC = () => {
   const [filtersState, setFiltersState] = useState<FiltersState>({
     clusters: {},
     tags: {},
+    communities: {},  // Add this line
+    networkAttribute: "tag"  // Add this line
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [clickedNode, setClickedNode] = useState<string | null>(null);
@@ -37,13 +39,15 @@ const GraphPage: FC = () => {
 
   // Load data on mount:
   useEffect(() => {
-    fetch(`${process.env.PUBLIC_URL}/dataset.json`)
+    fetch("./data.json")
       .then((res) => res.json())
       .then((dataset: Dataset) => {
         setDataset(dataset);
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
+          communities: mapValues(keyBy(dataset.tags, "key"), constant(true)),  // Add this line, using tags as communities for now
+          networkAttribute: "tag"  // Add this line
         });
         requestAnimationFrame(() => setDataReady(true));
       });

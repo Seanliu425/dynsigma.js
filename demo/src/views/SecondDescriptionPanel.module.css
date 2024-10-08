@@ -73,3 +73,46 @@
 .showAllButton:hover {
   background-color: #d0d0d0;
 }
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  color: #333;
+}
+
+.infoToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infoText {
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  padding: 0;
+}
+
+.toggleButton:hover {
+  color: #333;
+}

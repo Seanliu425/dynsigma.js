@@ -4,7 +4,7 @@ import { MdCategory } from "react-icons/md";
 import { keyBy, mapValues, sortBy, values } from "lodash";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 
-import { FiltersState, Community } from "../types";
+import { Community, FiltersState } from "../types";
 import Panel from "./Panel";
 
 const CommunitiesPanel: FC<{
@@ -18,7 +18,7 @@ const CommunitiesPanel: FC<{
 
   const nodesPerCommunity = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, { community }) => (index[community] = (index[community] || 0) + 1));
+    graph.forEachNode((_, { tag }) => (index[tag] = (index[tag] || 0) + 1));
     return index;
   }, []);
 
@@ -27,6 +27,9 @@ const CommunitiesPanel: FC<{
 
   const [visibleNodesPerCommunity, setVisibleNodesPerCommunity] = useState<Record<string, number>>(nodesPerCommunity);
   useEffect(() => {
+    // To ensure the graphology instance has up to data "hidden" values for
+    // nodes, we wait for next frame before reindexing. This won't matter in the
+    // UX, because of the visible nodes bar width transition.
     requestAnimationFrame(() => {
       const index: Record<string, number> = {};
       graph.forEachNode((_, { community, hidden }) => !hidden && (index[community] = (index[community] || 0) + 1));
@@ -43,7 +46,7 @@ const CommunitiesPanel: FC<{
     <Panel
       title={
         <>
-          <MdCategory className="text-muted" /> School Communities
+          <MdCategory className="text-muted" /> School Community
           {visibleCommunitiesCount < communities.length ? (
             <span className="text-muted text-small">
               {" "}
@@ -56,7 +59,7 @@ const CommunitiesPanel: FC<{
       }
     >
       <p>
-        <i className="text-muted">Click a community to show/hide related pages from the network.</i>
+        <i className="text-muted">Click a category to show/hide related pages from the network.</i>
       </p>
       <p className="buttons">
         <button className="btn" onClick={() => setCommunities(mapValues(keyBy(communities, "key"), () => true))}>
@@ -67,7 +70,7 @@ const CommunitiesPanel: FC<{
         </button>
       </p>
       <ul>
-        {sortedCommunities.map((community) => {
+        {sortedCommunities.map((community: Community) => {
           const nodesCount = nodesPerCommunity[community.key];
           const visibleNodesCount = visibleNodesPerCommunity[community.key] || 0;
           return (

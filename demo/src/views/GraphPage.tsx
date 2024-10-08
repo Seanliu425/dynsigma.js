@@ -46,7 +46,7 @@ const GraphPage: FC = () => {
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
-          communities: mapValues(keyBy(dataset.tags, "key"), constant(true)),  // Add this line, using tags as communities for now
+          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),  // Add this line, using tags as communities for now
           networkAttribute: "tag"  // Add this line
         });
         requestAnimationFrame(() => setDataReady(true));
@@ -160,8 +160,7 @@ const GraphPage: FC = () => {
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
                 />
-                {/* Comment out or remove the following panels */}
-                {/*
+              
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}
@@ -196,7 +195,7 @@ const GraphPage: FC = () => {
                     }));
                   }}
                 />
-                */}
+                
               </div>
             </div>
           </>

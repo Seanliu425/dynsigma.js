@@ -51,6 +51,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
 
     const clusters = keyBy(dataset.clusters, "key");
     const tags = keyBy(dataset.tags, "key");
+    const communities = keyBy(dataset.communities, "key");
 
     dataset.nodes.forEach((node) => {
       graph.addNode(node.key, {
@@ -88,12 +89,13 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
    * Apply filters to graphology:
    */
   useEffect(() => {
-    const { clusters, tags } = filters;
+    const { clusters, tags, communities } = filters;
     graph.forEachNode((node) => {
       const nodeData = graph.getNodeAttributes(node);
       const isClusterVisible = clusters[nodeData.cluster];
       const isTagVisible = tags[nodeData.tag];
-      graph.setNodeAttribute(node, "filteredOut", !isClusterVisible || !isTagVisible);
+      const isCommunityVisible = communities[nodeData.community];
+      graph.setNodeAttribute(node, "filteredOut", !isClusterVisible || !isTagVisible || !isCommunityVisible);
     });
   }, [graph, filters]);
 

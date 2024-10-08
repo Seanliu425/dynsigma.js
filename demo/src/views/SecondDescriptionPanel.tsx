@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useMemo } from "react";
-import { BsInfoCircle } from "react-icons/bs";
+import { BsInfoCircle, BsArrowRepeat } from "react-icons/bs";
 import Panel from "./Panel";
 import { useSigma } from "react-sigma-v2";
 import styles from "./SecondDescriptionPanel.module.css"; // We'll create this CSS module
@@ -28,6 +28,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const graph = sigma.getGraph();
   const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
   const [showAllSecondDegree, setShowAllSecondDegree] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
 
   const firstDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
@@ -124,7 +125,22 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           <>
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
             <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
-            <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
+            <div className={styles.infoToggle}>
+              <div className={styles.infoText}>
+                {showCommunity ? (
+                  <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
+                ) : (
+                  <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
+                )}
+              </div>
+              <button 
+                className={styles.toggleButton} 
+                onClick={() => setShowCommunity(!showCommunity)}
+              >
+                <BsArrowRepeat />
+                {showCommunity ? "Network" : "Community"}
+              </button>
+            </div>
             <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
             <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
           </>

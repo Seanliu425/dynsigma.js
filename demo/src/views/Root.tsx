@@ -30,7 +30,7 @@ const Root: FC = () => {
   const [filtersState, setFiltersState] = useState<FiltersState>({
     clusters: {},
     tags: {},
-    communities: {},  // Add this line
+    communities: {},
     networkAttribute: "tag"
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -48,7 +48,7 @@ const Root: FC = () => {
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
-          communities: mapValues(keyBy(dataset.tags, "key"), constant(true)),  // Add this line, using tags as communities for now
+          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),
           networkAttribute: "tag"
         });
         requestAnimationFrame(() => setDataReady(true));
@@ -207,20 +207,17 @@ const Root: FC = () => {
                   communities={dataset?.communities || []}
                   filters={filtersState}
                   setCommunities={(communities) =>
-                    setFiltersState((filters) => ({
-                      ...filters,
-                      communities,
+                    setFiltersState((prev) => ({ ...prev, communities }))
+                  }
+                  toggleCommunity={(community) =>
+                    setFiltersState((prev) => ({
+                      ...prev,
+                      communities: {
+                        ...prev.communities,
+                        [community]: !prev.communities[community],
+                      },
                     }))
                   }
-                  toggleCommunity={(community) => {
-                    setFiltersState((filters) => ({
-                      ...filters,
-                      communities: {
-                        ...filters.communities,
-                        [community]: !filters.communities[community],
-                      },
-                    }));
-                  }}
                 />
 
                 <HowTo />

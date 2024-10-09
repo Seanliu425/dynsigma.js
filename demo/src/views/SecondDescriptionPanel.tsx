@@ -2,7 +2,7 @@ import React, { FC, useState, useEffect, useMemo } from "react";
 import { BsInfoCircle, BsArrowRepeat } from "react-icons/bs";
 import Panel from "./Panel";
 import { useSigma } from "react-sigma-v2";
-import styles from "./SecondDescriptionPanel.module.css"; // We'll create this CSS module
+import styles from "./SecondDescriptionPanel.module.css";
 
 interface SecondDescriptionPanelProps {
   clickedNode: string | null;
@@ -113,11 +113,28 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   };
 
   const isSchool = clickedNode ? graph.getNodeAttribute(clickedNode, "cluster") === "School" : false;
+  const nodeTag = clickedNode ? graph.getNodeAttribute(clickedNode, "tag") : null;
+  const showCommunityButton = clickedNode && nodeTag !== "Provider";
+
   const clusterButtonText = isSchool 
     ? `${showCluster ? 'Hide' : 'Show'} Other Schools in Network`
     : `${showCluster ? 'Hide' : 'Show'} Other Similar Providers`;
 
+  const clusterButtonClass = `${styles.button} ${styles.clusterButton} ${
+    isSchool ? styles.schoolButton : styles.providerButton
+  }`;
+
+  console.log('Button class:', clusterButtonClass);
+  console.log('Is school:', isSchool);
+  console.log('Show cluster:', showCluster);
+
   const communityButtonText = `${showCommunity ? 'Hide' : 'Show'} Other Community Schools`;
+
+  useEffect(() => {
+    if (!clickedNode || nodeTag === "Provider") {
+      setShowCommunity(false);
+    }
+  }, [clickedNode, nodeTag, setShowCommunity]);
 
   return (
     <Panel
@@ -143,8 +160,6 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           <p>No node selected</p>
         )}
         
-
-
         {/* First-degree connections */}
         {clickedNode && (
           <div>
@@ -195,19 +210,20 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             {showSecondDegree ? 'Hide' : 'Show'} Second-degree Connections
           </button>
           <button
-            className={`${styles.button} ${styles.clusterButton}`}
+            className={clusterButtonClass}
             onClick={handleClusterToggle}
             disabled={!clickedNode}
           >
             {clusterButtonText}
           </button>
-          <button
-            className={`${styles.button} ${styles.communityButton}`}
-            onClick={handleCommunityToggle}
-            disabled={!clickedNode}
-          >
-            {communityButtonText}
-          </button>
+          {showCommunityButton && (
+            <button
+              className={`${styles.button} ${styles.communityButton}`}
+              onClick={handleCommunityToggle}
+            >
+              {communityButtonText}
+            </button>
+          )}
         </div>
       </div>
     </Panel>

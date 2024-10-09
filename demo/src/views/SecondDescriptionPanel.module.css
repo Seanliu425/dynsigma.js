@@ -125,3 +125,42 @@
 .communityButton:hover {
   background-color: #FFC700;
 }
+
+.activeBlue {
+  background-color: #007bff;
+  color: white;
+}
+
+.button.clusterButton.activeBlue {
+  background-color: #007bff !important;
+  color: white !important;
+  border-color: #007bff !important;
+}
+
+.schoolButton {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.providerButton {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.secondDegreeButton {
+  /* Your existing second degree button styles */
+}
+
+.communityButton {
+  /* Your existing community button styles */
+}
+
+.showAllButton {
+  /* Your existing show all button styles */
+}
+
+.controls {
+  /* Your existing controls styles */
+}

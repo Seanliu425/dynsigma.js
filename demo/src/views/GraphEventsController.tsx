@@ -18,9 +18,9 @@ const GraphEventsController: FC<{
     console.log("Node clicked:", node);
     setClickedNode((prevNode) => {
       if (prevNode === node) {
-        // If clicking the same node, deselect it
-        console.log("Deselecting node:", node);
-        return null;
+        // If clicking the same node, do nothing
+        console.log("Clicked the same node, maintaining selection:", node);
+        return prevNode;
       } else {
         // If clicking a new node, select it and recenter
         console.log("Selecting new node:", node);

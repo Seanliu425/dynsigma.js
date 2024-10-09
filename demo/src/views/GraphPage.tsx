@@ -36,6 +36,7 @@ const GraphPage: FC = () => {
   const [showSecondDegree, setShowSecondDegree] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [showCluster, setShowCluster] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -103,6 +104,8 @@ const GraphPage: FC = () => {
           clickedNode={clickedNode}
           showSecondDegree={showSecondDegree}
           showCluster={showCluster}
+          showCommunity={showCommunity}
+          onLinchpinScoreCalculated={(score) => {/* Handle score if needed */}}
         />
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
@@ -159,6 +162,8 @@ const GraphPage: FC = () => {
                   setShowSecondDegree={setShowSecondDegree}
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
+                  showCommunity={showCommunity}
+                  setShowCommunity={setShowCommunity}
                 />
               
                 <ClustersPanel

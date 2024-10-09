@@ -38,6 +38,7 @@ const Root: FC = () => {
   const [showSecondDegree, setShowSecondDegree] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [showCluster, setShowCluster] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -56,9 +57,12 @@ const Root: FC = () => {
   }, []);
 
   useEffect(() => {
-    // Reset showSecondDegree and showCluster when a new node is clicked
-    setShowSecondDegree(false);
-    setShowCluster(false);
+    // Reset showSecondDegree, showCluster, and showCommunity when a new node is clicked
+    if (clickedNode !== null) {
+      setShowSecondDegree(false);
+      setShowCluster(false);
+      setShowCommunity(false);
+    }
   }, [clickedNode]);
 
   if (!dataset) return null;
@@ -111,6 +115,7 @@ const Root: FC = () => {
           clickedNode={clickedNode}
           showSecondDegree={showSecondDegree}
           showCluster={showCluster}
+          showCommunity={showCommunity}  // Add this line
         />
         <GraphEventsController 
           setHoveredNode={setHoveredNode}
@@ -167,6 +172,8 @@ const Root: FC = () => {
                   setShowSecondDegree={setShowSecondDegree}
                   showCluster={showCluster}
                   setShowCluster={setShowCluster}
+                  showCommunity={showCommunity}  // Add this line
+                  setShowCommunity={setShowCommunity}  // Add this line
                 />
 
                 <ClustersPanel

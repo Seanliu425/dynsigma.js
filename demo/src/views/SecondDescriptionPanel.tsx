@@ -10,11 +10,13 @@ interface SecondDescriptionPanelProps {
   setShowSecondDegree: (value: boolean) => void;
   showCluster: boolean;
   setShowCluster: (value: boolean) => void;
+  showCommunity: boolean;
+  setShowCommunity: (value: boolean) => void;
 }
 
 interface Connection {
   id: string;
-  label: string;
+  label?: string;
 }
 
 const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({ 
@@ -22,13 +24,14 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   showSecondDegree, 
   setShowSecondDegree, 
   showCluster,
-  setShowCluster 
+  setShowCluster,
+  showCommunity,
+  setShowCommunity
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
   const [showAllSecondDegree, setShowAllSecondDegree] = useState(false);
-  const [showCommunity, setShowCommunity] = useState(false);
 
   const firstDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
@@ -99,9 +102,13 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
 
   const handleClusterToggle = () => {
     if (clickedNode) {
-      const newShowCluster = !showCluster;
-      setShowCluster(newShowCluster);
-      // Note: When a node is selected, we assume the existing clustering logic will handle visibility
+      setShowCluster(!showCluster);
+    }
+  };
+
+  const handleCommunityToggle = () => {
+    if (clickedNode) {
+      setShowCommunity(!showCommunity);
     }
   };
 
@@ -109,6 +116,8 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const clusterButtonText = isSchool 
     ? `${showCluster ? 'Hide' : 'Show'} Other Schools in Network`
     : `${showCluster ? 'Hide' : 'Show'} Other Similar Providers`;
+
+  const communityButtonText = `${showCommunity ? 'Hide' : 'Show'} Other Community Schools`;
 
   return (
     <Panel
@@ -176,7 +185,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           </div>
         )}
 
-        {/* Controls for second-degree connections and cluster */}
+        {/* Controls for second-degree connections, cluster, and community */}
         <div className={styles.controls}>
           <button
             className={`${styles.button} ${styles.secondDegreeButton}`}
@@ -187,10 +196,17 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           </button>
           <button
             className={`${styles.button} ${styles.clusterButton}`}
-            onClick={() => setShowCluster(!showCluster)}
+            onClick={handleClusterToggle}
             disabled={!clickedNode}
           >
             {clusterButtonText}
+          </button>
+          <button
+            className={`${styles.button} ${styles.communityButton}`}
+            onClick={handleCommunityToggle}
+            disabled={!clickedNode}
+          >
+            {communityButtonText}
           </button>
         </div>
       </div>

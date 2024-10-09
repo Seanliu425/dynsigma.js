@@ -116,3 +116,12 @@
 .toggleButton:hover {
   color: #333;
 }
+
+.communityButton {
+  background-color: #FFD700; /* Gold color for community button */
+  color: black;
+}
+
+.communityButton:hover {
+  background-color: #FFC700;
+}

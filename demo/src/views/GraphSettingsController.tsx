@@ -15,8 +15,9 @@ const GraphSettingsController: FC<{
   clickedNode: string | null;
   showSecondDegree: boolean;
   showCluster: boolean;
+  showCommunity: boolean;
   onLinchpinScoreCalculated?: (score: number) => void;
-}> = ({ children, hoveredNode, clickedNode, showSecondDegree, showCluster, onLinchpinScoreCalculated }) => {
+}> = ({ children, hoveredNode, clickedNode, showSecondDegree, showCluster, showCommunity, onLinchpinScoreCalculated }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [nodeSecondDegreeConnections, setNodeSecondDegreeConnections] = useState<Map<string, Set<string>>>(new Map());
@@ -42,6 +43,33 @@ const GraphSettingsController: FC<{
   const debouncedHoveredNode = useDebounce(hoveredNode, 40);
 
   useEffect(() => {
+    if (clickedNode) {
+      const nodeAttributes = graph.getNodeAttributes(clickedNode);
+      const nodeCommunity = nodeAttributes.community;
+      const nodeCluster = nodeAttributes.cluster;
+
+      graph.forEachNode((node) => {
+        const attributes = graph.getNodeAttributes(node);
+        const isSameCommunity = attributes.community === nodeCommunity;
+        const isSameCluster = attributes.cluster === nodeCluster;
+        const isVisible = 
+          (showCommunity && isSameCommunity) || 
+          (showCluster && isSameCluster) || 
+          node === clickedNode;
+        
+        graph.setNodeAttribute(node, "hidden", !isVisible);
+      });
+
+      if (onLinchpinScoreCalculated) {
+        const linchpinScore = calculateLinchpinScore(clickedNode);
+        onLinchpinScoreCalculated(linchpinScore);
+      }
+    } else {
+      graph.forEachNode((node) => {
+        graph.setNodeAttribute(node, "hidden", false);
+      });
+    }
+
     sigma.setSetting(
       "nodeReducer",
       (node, data) => {
@@ -50,7 +78,7 @@ const GraphSettingsController: FC<{
           return { ...data, hidden: true };
         }
 
-        if (!clickedNode && !debouncedHoveredNode && !showCluster) {
+        if (!clickedNode && !debouncedHoveredNode && !showCluster && !showCommunity) {
           // No node is clicked or hovered, show all non-filtered nodes
           return { ...data, hidden: false };
         }
@@ -63,6 +91,11 @@ const GraphSettingsController: FC<{
               const clickedNodeValue = graph.getNodeAttribute(clickedNode, relevantAttribute);
               const nodeValue = graph.getNodeAttribute(targetNode, relevantAttribute);
               if (nodeValue === clickedNodeValue) return true;
+            }
+            if (showCommunity) {
+              const clickedNodeCommunity = graph.getNodeAttribute(clickedNode, "community");
+              const nodeCommunity = graph.getNodeAttribute(targetNode, "community");
+              if (nodeCommunity === clickedNodeCommunity) return true;
             }
             if (graph.hasEdge(targetNode, clickedNode) || graph.hasEdge(clickedNode, targetNode)) return true;
             if (showSecondDegree) {
@@ -129,6 +162,10 @@ const GraphSettingsController: FC<{
               return graph.getNodeAttribute(node, isSchool ? "tag" : "cluster") === 
                      graph.getNodeAttribute(clickedNode, isSchool ? "tag" : "cluster");
             }
+            if (showCommunity) {
+              return graph.getNodeAttribute(node, "community") === 
+                     graph.getNodeAttribute(clickedNode, "community");
+            }
             return false;
           };
 
@@ -156,8 +193,8 @@ const GraphSettingsController: FC<{
               } else if (showSecondDegree && (isSecondDegree(source) || isSecondDegree(target))) {
                 // For second-degree connections, use default color
                 return { ...data, hidden: false };
-              } else if (showCluster) {
-                // For cluster connections, use default color
+              } else if (showCluster || showCommunity) {
+                // For cluster or community connections, use default color
                 return { ...data, hidden: false };
               }
             }
@@ -183,7 +220,7 @@ const GraphSettingsController: FC<{
       const linchpinScore = calculateLinchpinScore(clickedNode);
       onLinchpinScoreCalculated?.(linchpinScore);
     }
-  }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, sigma, graph, isSchoolCluster, getRelevantAttribute]);
+  }, [debouncedHoveredNode, clickedNode, showSecondDegree, showCluster, showCommunity, sigma, graph, isSchoolCluster, getRelevantAttribute]);
 
   const calculateLinchpinScore = useCallback((nodeId: string) => {
     let redEdges = 0;

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState, useRef } from "react";
+import React, { FC, useEffect, useMemo, useState, useCallback } from "react";
 import { useSigma } from "react-sigma-v2";
 import { MdCategory, MdExpandMore, MdExpandLess } from "react-icons/md";
 import { keyBy, mapValues, sortBy, values, groupBy } from "lodash";
@@ -20,53 +20,60 @@ const CommunitiesPanel: FC<{
   const sigma = useSigma();
   const graph = sigma.getGraph();
 
+  const [expandedZones, setExpandedZones] = useState<Record<string, boolean>>({});
+
   const nodesPerCommunity = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, { tag }) => (index[tag] = (index[tag] || 0) + 1));
+    graph.forEachNode((_, attrs) => {
+      if (attrs.tag) {
+        index[attrs.tag] = (index[attrs.tag] || 0) + 1;
+      }
+    });
     return index;
-  }, []);
+  }, [graph]);
 
   const maxNodesPerCommunity = useMemo(() => Math.max(...values(nodesPerCommunity)), [nodesPerCommunity]);
-  const visibleCommunitiesCount = useMemo(() => Object.keys(filters.communities).length, [filters]);
 
-  const [visibleNodesPerCommunity, setVisibleNodesPerCommunity] = useState<Record<string, number>>(nodesPerCommunity);
+  const [visibleNodesPerCommunity, setVisibleNodesPerCommunity] = useState<Record<string, number>>({});
+
   useEffect(() => {
-    requestAnimationFrame(() => {
+    const updateVisibleNodes = () => {
       const index: Record<string, number> = {};
-      graph.forEachNode((_, { community, hidden }) => !hidden && (index[community] = (index[community] || 0) + 1));
+      graph.forEachNode((_, attrs) => {
+        if (!attrs.hidden && attrs.community) {
+          index[attrs.community] = (index[attrs.community] || 0) + 1;
+        }
+      });
       setVisibleNodesPerCommunity(index);
-    });
-  }, [filters]);
+    };
 
-  const sortedCommunities = useMemo(
-    () => sortBy(communities, (community) => (community.key === "unknown" ? Infinity : -nodesPerCommunity[community.key])),
-    [communities, nodesPerCommunity],
-  );
+    // Initial update
+    updateVisibleNodes();
+
+    // Set up an interval to periodically update visible nodes
+    const intervalId = setInterval(updateVisibleNodes, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [graph, filters]);
 
   const groupedCommunities = useMemo<GroupedCommunities>(() => {
-    const grouped = groupBy(sortedCommunities, 'healthzone');
-    // Remove the Provider group
+    const grouped = groupBy(communities, 'healthzone');
     delete grouped['Provider'];
     return grouped;
-  }, [sortedCommunities]);
+  }, [communities]);
 
-  const healthZones = useMemo(() => {
-    return sortBy(Object.keys(groupedCommunities));
-  }, [groupedCommunities]);
+  const healthZones = useMemo(() => sortBy(Object.keys(groupedCommunities)), [groupedCommunities]);
 
-  const [expandedZones, setExpandedZones] = useState<Record<string, boolean>>({});
-  const toggleButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const toggleZoneExpansion = useCallback((healthZone: string) => {
+    setExpandedZones(prev => ({ ...prev, [healthZone]: !prev[healthZone] }));
+  }, []);
 
-  const isZoneVisible = (healthZone: string) => {
+  const isZoneVisible = useCallback((healthZone: string) => {
     const communitiesInZone = groupedCommunities[healthZone] || [];
     return communitiesInZone.some(community => filters.communities[community.key]);
-  };
+  }, [groupedCommunities, filters.communities]);
 
-  const toggleZoneExpansion = (healthZone: string) => {
-    setExpandedZones(prev => ({ ...prev, [healthZone]: !prev[healthZone] }));
-  };
-
-  const toggleHealthZone = (healthZone: string) => {
+  const toggleHealthZone = useCallback((healthZone: string) => {
     const communitiesInZone = groupedCommunities[healthZone] || [];
     const allVisible = communitiesInZone.every(community => filters.communities[community.key]);
     const newState = !allVisible;
@@ -77,30 +84,21 @@ const CommunitiesPanel: FC<{
     });
     
     setCommunities(updatedCommunities);
-  };
+  }, [groupedCommunities, filters.communities, setCommunities]);
 
-  const hideAllZones = () => {
+  const hideAllZones = useCallback(() => {
     const updatedCommunities = { ...filters.communities };
-    healthZones.forEach(healthZone => {
-      const communitiesInZone = groupedCommunities[healthZone] || [];
-      communitiesInZone.forEach(community => {
-        updatedCommunities[community.key] = false;
-      });
+    Object.values(groupedCommunities).flat().forEach(community => {
+      updatedCommunities[community.key] = false;
     });
     setCommunities(updatedCommunities);
-  };
+  }, [groupedCommunities, filters.communities, setCommunities]);
 
-  const renderCommunity = (community: Community) => {
-    const nodesCount = nodesPerCommunity[community.key];
+  const renderCommunity = useCallback((community: Community) => {
+    const nodesCount = nodesPerCommunity[community.key] || 0;
     const visibleNodesCount = visibleNodesPerCommunity[community.key] || 0;
     return (
-      <li
-        className="caption-row"
-        key={community.key}
-        title={`${nodesCount} page${nodesCount > 1 ? "s" : ""}${
-          visibleNodesCount !== nodesCount ? ` (only ${visibleNodesCount} visible)` : ""
-        }`}
-      >
+      <li className="caption-row" key={community.key}>
         <input
           type="checkbox"
           checked={filters.communities[community.key] || false}
@@ -108,45 +106,18 @@ const CommunitiesPanel: FC<{
           id={`community-${community.key}`}
         />
         <label htmlFor={`community-${community.key}`}>
-          <span
-            className="circle"
-            style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/images/${community.image})` }}
-          />{" "}
-          <div className="node-label">
-            <span>{community.key}</span>
-            <div className="bar" style={{ width: (100 * nodesCount) / maxNodesPerCommunity + "%" }}>
-              <div
-                className="inside-bar"
-                style={{
-                  width: (100 * visibleNodesCount) / nodesCount + "%",
-                }}
-              />
-            </div>
-          </div>
+          <span>{community.key}</span>
+          <span className="text-muted text-small">
+            ({visibleNodesCount}/{nodesCount})
+          </span>
         </label>
       </li>
     );
-  };
+  }, [nodesPerCommunity, visibleNodesPerCommunity, filters.communities, toggleCommunity]);
 
   return (
-    <Panel
-      title={
-        <>
-          <MdCategory className="text-muted" /> School Community
-          {visibleCommunitiesCount < communities.length ? (
-            <span className="text-muted text-small">
-              {" "}
-              ({visibleCommunitiesCount} / {communities.length})
-            </span>
-          ) : (
-            ""
-          )}
-        </>
-      }
-    >
-      <p>
-        <i className="text-muted">Click a category to show/hide related pages from the network.</i>
-      </p>
+    <Panel title={<><MdCategory className="text-muted" /> School Community</>}>
+      <p><i className="text-muted">Click a category to show/hide related pages from the network.</i></p>
       <p className="buttons">
         <button className="btn" onClick={() => setCommunities(mapValues(keyBy(communities, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
@@ -165,21 +136,16 @@ const CommunitiesPanel: FC<{
               {expandedZones[healthZone] ? <MdExpandLess /> : <MdExpandMore />} {healthZone}
             </span>
             <button 
-              ref={el => toggleButtonRefs.current[healthZone] = el}
               className="btn btn-small" 
               onClick={() => toggleHealthZone(healthZone)}
-              style={{ 
-                fontSize: '0.8em', 
-                padding: '2px 5px',
-                marginLeft: '10px'
-              }}
+              style={{ fontSize: '0.8em', padding: '2px 5px', marginLeft: '10px' }}
             >
               {isZoneVisible(healthZone) ? "Hide" : "View"}
             </button>
           </h3>
           {expandedZones[healthZone] && (
             <ul>
-              {(groupedCommunities[healthZone] || []).map(community => renderCommunity(community))}
+              {(groupedCommunities[healthZone] || []).map(renderCommunity)}
             </ul>
           )}
         </div>

@@ -1,11 +1,15 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo, useState, useRef } from "react";
 import { useSigma } from "react-sigma-v2";
-import { MdCategory } from "react-icons/md";
+import { MdCategory, MdExpandMore, MdExpandLess } from "react-icons/md";
 import { keyBy, mapValues, sortBy, values, groupBy } from "lodash";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 
 import { Community, FiltersState } from "../types";
 import Panel from "./Panel";
+
+type GroupedCommunities = {
+  [key: string]: Community[];
+};
 
 const CommunitiesPanel: FC<{
   communities: Community[];
@@ -39,24 +43,50 @@ const CommunitiesPanel: FC<{
     [communities, nodesPerCommunity],
   );
 
-  const groupedCommunities = useMemo(() => {
-    return groupBy(sortedCommunities, 'healthzone');
+  const groupedCommunities = useMemo<GroupedCommunities>(() => {
+    const grouped = groupBy(sortedCommunities, 'healthzone');
+    // Remove the Provider group
+    delete grouped['Provider'];
+    return grouped;
   }, [sortedCommunities]);
 
   const healthZones = useMemo(() => {
     return sortBy(Object.keys(groupedCommunities));
   }, [groupedCommunities]);
 
+  const [expandedZones, setExpandedZones] = useState<Record<string, boolean>>({});
+  const toggleButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const isZoneVisible = (healthZone: string) => {
+    const communitiesInZone = groupedCommunities[healthZone] || [];
+    return communitiesInZone.some(community => filters.communities[community.key]);
+  };
+
+  const toggleZoneExpansion = (healthZone: string) => {
+    setExpandedZones(prev => ({ ...prev, [healthZone]: !prev[healthZone] }));
+  };
+
   const toggleHealthZone = (healthZone: string) => {
-    const communitiesInZone = groupedCommunities[healthZone];
-    const allChecked = communitiesInZone.every(community => filters.communities[community.key]);
-    const newState = !allChecked;
+    const communitiesInZone = groupedCommunities[healthZone] || [];
+    const allVisible = communitiesInZone.every(community => filters.communities[community.key]);
+    const newState = !allVisible;
     
     const updatedCommunities = { ...filters.communities };
     communitiesInZone.forEach(community => {
       updatedCommunities[community.key] = newState;
     });
     
+    setCommunities(updatedCommunities);
+  };
+
+  const hideAllZones = () => {
+    const updatedCommunities = { ...filters.communities };
+    healthZones.forEach(healthZone => {
+      const communitiesInZone = groupedCommunities[healthZone] || [];
+      communitiesInZone.forEach(community => {
+        updatedCommunities[community.key] = false;
+      });
+    });
     setCommunities(updatedCommunities);
   };
 
@@ -121,21 +151,37 @@ const CommunitiesPanel: FC<{
         <button className="btn" onClick={() => setCommunities(mapValues(keyBy(communities, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={() => setCommunities({})}>
-          <AiOutlineCloseCircle /> Uncheck all
+        <button className="btn" onClick={hideAllZones}>
+          <AiOutlineCloseCircle /> Hide all zones
         </button>
       </p>
       {healthZones.map((healthZone) => (
         <div key={healthZone}>
-          <h3>
-            {healthZone}
-            <button className="btn btn-small" onClick={() => toggleHealthZone(healthZone)}>
-              Toggle All
+          <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span 
+              style={{ fontWeight: 'bold', cursor: 'pointer' }} 
+              onClick={() => toggleZoneExpansion(healthZone)}
+            >
+              {expandedZones[healthZone] ? <MdExpandLess /> : <MdExpandMore />} {healthZone}
+            </span>
+            <button 
+              ref={el => toggleButtonRefs.current[healthZone] = el}
+              className="btn btn-small" 
+              onClick={() => toggleHealthZone(healthZone)}
+              style={{ 
+                fontSize: '0.8em', 
+                padding: '2px 5px',
+                marginLeft: '10px'
+              }}
+            >
+              {isZoneVisible(healthZone) ? "Hide" : "View"}
             </button>
           </h3>
-          <ul>
-            {groupedCommunities[healthZone].map(renderCommunity)}
-          </ul>
+          {expandedZones[healthZone] && (
+            <ul>
+              {(groupedCommunities[healthZone] || []).map(community => renderCommunity(community))}
+            </ul>
+          )}
         </div>
       ))}
     </Panel>

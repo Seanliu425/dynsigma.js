@@ -1,11 +1,16 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo, useState, useCallback } from "react";
 import { useSigma } from "react-sigma-v2";
-import { MdCategory } from "react-icons/md";
-import { keyBy, mapValues, sortBy, values } from "lodash";
+import { MdCategory, MdExpandMore, MdExpandLess } from "react-icons/md";
+import { FaTag } from "react-icons/fa";
+import { keyBy, mapValues, sortBy, values, groupBy } from "lodash";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 
-import { FiltersState, Tag } from "../types";
+import { Tag, FiltersState } from "../types";
 import Panel from "./Panel";
+
+type GroupedTags = {
+  [key: string]: Tag[];
+};
 
 const TagsPanel: FC<{
   tags: Tag[];
@@ -16,98 +21,176 @@ const TagsPanel: FC<{
   const sigma = useSigma();
   const graph = sigma.getGraph();
 
+  const [expandedSchoolTypes, setExpandedSchoolTypes] = useState<Record<string, boolean>>({});
+
   const nodesPerTag = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, { tag }) => (index[tag] = (index[tag] || 0) + 1));
+    graph.forEachNode((_, attrs) => {
+      if (attrs.tag) {
+        index[attrs.tag] = (index[attrs.tag] || 0) + 1;
+      }
+    });
     return index;
-  }, []);
+  }, [graph]);
 
   const maxNodesPerTag = useMemo(() => Math.max(...values(nodesPerTag)), [nodesPerTag]);
-  const visibleTagsCount = useMemo(() => Object.keys(filters.tags).length, [filters]);
 
-  const [visibleNodesPerTag, setVisibleNodesPerTag] = useState<Record<string, number>>(nodesPerTag);
+  const [visibleNodesPerTag, setVisibleNodesPerTag] = useState<Record<string, number>>({});
+
   useEffect(() => {
-    // To ensure the graphology instance has up to data "hidden" values for
-    // nodes, we wait for next frame before reindexing. This won't matter in the
-    // UX, because of the visible nodes bar width transition.
-    requestAnimationFrame(() => {
+    const updateVisibleNodes = () => {
       const index: Record<string, number> = {};
-      graph.forEachNode((_, { tag, hidden }) => !hidden && (index[tag] = (index[tag] || 0) + 1));
+      graph.forEachNode((_, attrs) => {
+        if (!attrs.hidden && attrs.tag) {
+          index[attrs.tag] = (index[attrs.tag] || 0) + 1;
+        }
+      });
       setVisibleNodesPerTag(index);
-    });
-  }, [filters]);
+    };
 
-  const sortedTags = useMemo(
-    () => sortBy(tags, (tag) => (tag.key === "unknown" ? Infinity : -nodesPerTag[tag.key])),
-    [tags, nodesPerTag],
-  );
+    updateVisibleNodes();
+    const intervalId = setInterval(updateVisibleNodes, 1000);
+    return () => clearInterval(intervalId);
+  }, [graph, filters]);
+
+  const groupedTags = useMemo<GroupedTags>(() => {
+    return groupBy(tags, 'schooltype');
+  }, [tags]);
+
+  const schoolTypes = useMemo(() => sortBy(Object.keys(groupedTags)), [groupedTags]);
+
+  const toggleSchoolTypeExpansion = useCallback((schoolType: string) => {
+    setExpandedSchoolTypes(prev => ({ ...prev, [schoolType]: !prev[schoolType] }));
+  }, []);
+
+  const isSchoolTypeVisible = useCallback((schoolType: string) => {
+    const tagsInSchoolType = groupedTags[schoolType] || [];
+    return tagsInSchoolType.some(tag => filters.tags[tag.key]);
+  }, [groupedTags, filters.tags]);
+
+  const toggleSchoolType = useCallback((schoolType: string) => {
+    const tagsInSchoolType = groupedTags[schoolType] || [];
+    const allVisible = tagsInSchoolType.every(tag => filters.tags[tag.key]);
+    const newState = !allVisible;
+    
+    const updatedTags = { ...filters.tags };
+    tagsInSchoolType.forEach(tag => {
+      updatedTags[tag.key] = newState;
+    });
+    
+    setTags(updatedTags);
+  }, [groupedTags, filters.tags, setTags]);
+
+  const hideAllSchoolTypes = useCallback(() => {
+    const updatedTags = { ...filters.tags };
+    Object.values(groupedTags).flat().forEach(tag => {
+      updatedTags[tag.key] = false;
+    });
+    setTags(updatedTags);
+  }, [groupedTags, filters.tags, setTags]);
+
+  const renderTag = useCallback((tag: Tag) => {
+    const nodesCount = nodesPerTag[tag.key] || 0;
+    const isVisible = filters.tags[tag.key] || false;
+    const visibleNodesCount = isVisible ? (visibleNodesPerTag[tag.key] || 0) : 0;
+
+    return (
+      <li
+        className="caption-row"
+        key={tag.key}
+        title={`${nodesCount} node${nodesCount > 1 ? "s" : ""}${
+          !isVisible ? " (currently hidden)" : visibleNodesCount !== nodesCount ? ` (only ${visibleNodesCount} visible)` : ""
+        }`}
+      >
+        <input
+          type="checkbox"
+          checked={isVisible}
+          onChange={() => toggleTag(tag.key)}
+          id={`tag-${tag.key}`}
+        />
+        <label htmlFor={`tag-${tag.key}`}>
+          <div className="node-label">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FaTag style={{ marginRight: '8px', fontSize: '0.9em' }} />
+              <span>{tag.key}</span>
+              <span className="text-muted text-small" style={{ marginLeft: 'auto' }}>
+                ({visibleNodesCount}/{nodesCount})
+              </span>
+            </div>
+            <div className="bar" style={{ width: (100 * nodesCount) / maxNodesPerTag + "%" }}>
+              <div
+                className="inside-bar"
+                style={{
+                  width: isVisible ? (100 * visibleNodesCount) / nodesCount + "%" : "0%",
+                  transition: "width 0.3s ease-out",
+                }}
+              />
+            </div>
+          </div>
+        </label>
+      </li>
+    );
+  }, [nodesPerTag, visibleNodesPerTag, maxNodesPerTag, filters.tags, toggleTag]);
+
+  const renderSchoolTypeToggleButton = useCallback((schoolType: string) => {
+    const isVisible = isSchoolTypeVisible(schoolType);
+    return (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div
+          style={{
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: isVisible ? '#28a745' : '#dc3545',
+            marginRight: '5px'
+          }}
+        />
+        <button 
+          onClick={() => toggleSchoolType(schoolType)}
+          style={{
+            fontSize: '0.8em',
+            padding: '2px 5px',
+            backgroundColor: 'transparent',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          {isVisible ? "Hide" : "Show"}
+        </button>
+      </div>
+    );
+  }, [isSchoolTypeVisible, toggleSchoolType]);
 
   return (
-    <Panel
-      title={
-        <>
-          <MdCategory className="text-muted" /> School Network
-          {visibleTagsCount < tags.length ? (
-            <span className="text-muted text-small">
-              {" "}
-              ({visibleTagsCount} / {tags.length})
-            </span>
-          ) : (
-            ""
-          )}
-        </>
-      }
-    >
-      <p>
-        <i className="text-muted">Click a category to show/hide related pages from the network.</i>
-      </p>
+    <Panel title={<><MdCategory className="text-muted" /> School Type</>}>
+      <p><i className="text-muted">Click a school type to show/hide related pages from the network.</i></p>
       <p className="buttons">
         <button className="btn" onClick={() => setTags(mapValues(keyBy(tags, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={() => setTags({})}>
-          <AiOutlineCloseCircle /> Uncheck all
+        <button className="btn" onClick={hideAllSchoolTypes}>
+          <AiOutlineCloseCircle /> Hide all types
         </button>
       </p>
-      <ul>
-        {sortedTags.map((tag) => {
-          const nodesCount = nodesPerTag[tag.key];
-          const visibleNodesCount = visibleNodesPerTag[tag.key] || 0;
-          return (
-            <li
-              className="caption-row"
-              key={tag.key}
-              title={`${nodesCount} page${nodesCount > 1 ? "s" : ""}${
-                visibleNodesCount !== nodesCount ? ` (only ${visibleNodesCount} visible)` : ""
-              }`}
+      {schoolTypes.map((schoolType) => (
+        <div key={schoolType}>
+          <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span 
+              style={{ fontWeight: 'bold', cursor: 'pointer' }} 
+              onClick={() => toggleSchoolTypeExpansion(schoolType)}
             >
-              <input
-                type="checkbox"
-                checked={filters.tags[tag.key] || false}
-                onChange={() => toggleTag(tag.key)}
-                id={`tag-${tag.key}`}
-              />
-              <label htmlFor={`tag-${tag.key}`}>
-                <span
-                  className="circle"
-                  style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/images/${tag.image})` }}
-                />{" "}
-                <div className="node-label">
-                  <span>{tag.key}</span>
-                  <div className="bar" style={{ width: (100 * nodesCount) / maxNodesPerTag + "%" }}>
-                    <div
-                      className="inside-bar"
-                      style={{
-                        width: (100 * visibleNodesCount) / nodesCount + "%",
-                      }}
-                    />
-                  </div>
-                </div>
-              </label>
-            </li>
-          );
-        })}
-      </ul>
+              {expandedSchoolTypes[schoolType] ? <MdExpandLess /> : <MdExpandMore />} {schoolType}
+            </span>
+            {renderSchoolTypeToggleButton(schoolType)}
+          </h3>
+          {expandedSchoolTypes[schoolType] && (
+            <ul>
+              {(groupedTags[schoolType] || []).map(renderTag)}
+            </ul>
+          )}
+        </div>
+      ))}
     </Panel>
   );
 };

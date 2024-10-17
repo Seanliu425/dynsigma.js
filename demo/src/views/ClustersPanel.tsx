@@ -72,18 +72,19 @@ const ClustersPanel: FC<{
       <ul>
         {sortedClusters.map((cluster) => {
           const nodesCount = nodesPerCluster[cluster.key];
-          const visibleNodesCount = visibleNodesPerCluster[cluster.key] || 0;
+          const isVisible = filters.clusters[cluster.key] || false;
+          const visibleNodesCount = isVisible ? (visibleNodesPerCluster[cluster.key] || 0) : 0;
           return (
             <li
               className="caption-row"
               key={cluster.key}
-              title={`${nodesCount} page${nodesCount > 1 ? "s" : ""}${
-                visibleNodesCount !== nodesCount ? ` (only ${visibleNodesCount} visible)` : ""
+              title={`${nodesCount} node${nodesCount > 1 ? "s" : ""}${
+                !isVisible ? " (currently hidden)" : visibleNodesCount !== nodesCount ? ` (only ${visibleNodesCount} visible)` : ""
               }`}
             >
               <input
                 type="checkbox"
-                checked={filters.clusters[cluster.key] || false}
+                checked={isVisible}
                 onChange={() => toggleCluster(cluster.key)}
                 id={`cluster-${cluster.key}`}
               />
@@ -95,10 +96,14 @@ const ClustersPanel: FC<{
                     <div
                       className="inside-bar"
                       style={{
-                        width: (100 * visibleNodesCount) / nodesCount + "%",
+                        width: isVisible ? (100 * visibleNodesCount) / nodesCount + "%" : "0%",
+                        transition: "width 0.3s ease-out",
                       }}
                     />
                   </div>
+                </div>
+                <div className="text-muted text-small">
+                  ({visibleNodesCount}/{nodesCount})
                 </div>
               </label>
             </li>

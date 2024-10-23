@@ -143,18 +143,50 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const schoolType = getNodeAttribute("schoolType");
   const isSchool = getNodeAttribute("cluster") === "School";
   const nodeTag = getNodeAttribute("tag");
+  const isProvider = nodeTag === "Provider";
 
   const showCommunityButton = clickedNode && nodeTag !== "Provider";
   const showHealthZoneButton = !!healthZone;
   const showSchoolTypeButton = isSchool && !!schoolType;
 
-  const clusterButtonText = isSchool 
-    ? `${showCluster ? 'Hide' : 'Show'} Other Schools in Network`
-    : `${showCluster ? 'Hide' : 'Show'} Other Similar Providers`;
+  const secondDegreeCount = useMemo(() => {
+    if (!clickedNode) return 0;
+    const firstDegreeIds = new Set(graph.neighbors(clickedNode));
+    return new Set(
+      Array.from(firstDegreeIds).flatMap(id => 
+        graph.neighbors(id).filter(n => n !== clickedNode && !firstDegreeIds.has(n))
+      )
+    ).size;
+  }, [clickedNode, graph]);
 
-  const communityButtonText = `${showCommunity ? 'Hide' : 'Show'} Other Community Schools`;
-  const healthZoneButtonText = `${showHealthZone ? 'Hide' : 'Show'} Same Health Zone`;
-  const schoolTypeButtonText = `${showSchoolType ? 'Hide' : 'Show'} Same School Type`;
+  const tagCount = useMemo(() => {
+    if (!clickedNode) return 0;
+    return graph.filterNodes(n => 
+      n !== clickedNode && graph.getNodeAttribute(n, "tag") === nodeTag
+    ).length;
+  }, [clickedNode, graph, nodeTag]);
+
+  const clusterCount = useMemo(() => {
+    if (!clickedNode) return 0;
+    const nodeCluster = graph.getNodeAttribute(clickedNode, "cluster");
+    return graph.filterNodes(n => 
+      n !== clickedNode && graph.getNodeAttribute(n, "cluster") === nodeCluster
+    ).length;
+  }, [clickedNode, graph]);
+
+  const communityCount = useMemo(() => {
+    if (!clickedNode) return 0;
+    const nodeCommunity = graph.getNodeAttribute(clickedNode, "community");
+    return graph.filterNodes(n => 
+      n !== clickedNode && graph.getNodeAttribute(n, "community") === nodeCommunity
+    ).length;
+  }, [clickedNode, graph]);
+
+  const secondDegreeButtonText = `${showSecondDegree ? 'Hide' : 'Show'} Second-degree Connections (${secondDegreeCount})`;
+  const clusterButtonText = isProvider
+    ? `${showCluster ? 'Hide' : 'Show'} Other Similar Providers (${clusterCount})`
+    : `${showCluster ? 'Hide' : 'Show'} Schools in Network (${tagCount})`;
+  const communityButtonText = `${showCommunity ? 'Hide' : 'Show'} Other Community Schools (${communityCount})`;
 
   useEffect(() => {
     if (!clickedNode) {
@@ -184,13 +216,21 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         {clickedNode ? (
           <>
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
-            <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
-            <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
-            <p><strong>Network:</strong> {nodeTag}</p>
             <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
-            <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
-            {healthZone && <p><strong>Health Zone:</strong> {healthZone}</p>}
-            {isSchool && schoolType && <p><strong>School Type:</strong> {schoolType}</p>}
+            {!isSchool && (
+              <>
+                <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
+                <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
+              </>
+            )}
+            {!isProvider && (
+              <>
+                <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
+                <p><strong>Network:</strong> {nodeTag}</p>
+                <p><strong>Health Zone:</strong> {graph.getNodeAttribute(clickedNode, "healthzone")}</p>
+                <p><strong>School Type:</strong> {graph.getNodeAttribute(clickedNode, "schooltype")}</p>
+              </>
+            )}
           </>
         ) : (
           <p>No node selected</p>
@@ -243,7 +283,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             onClick={() => setShowSecondDegree(!showSecondDegree)}
             disabled={!clickedNode}
           >
-            {showSecondDegree ? 'Hide' : 'Show'} Second-degree Connections
+            {secondDegreeButtonText}
           </button>
           <button
             className={`${styles.button} ${styles.clusterButton}`}
@@ -258,22 +298,6 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
               onClick={() => setShowCommunity(!showCommunity)}
             >
               {communityButtonText}
-            </button>
-          )}
-          {showHealthZoneButton && (
-            <button
-              className={`${styles.button} ${styles.healthZoneButton}`}
-              onClick={handleHealthZoneToggle}
-            >
-              {healthZoneButtonText}
-            </button>
-          )}
-          {showSchoolTypeButton && (
-            <button
-              className={`${styles.button} ${styles.schoolTypeButton}`}
-              onClick={handleSchoolTypeToggle}
-            >
-              {schoolTypeButtonText}
             </button>
           )}
         </div>

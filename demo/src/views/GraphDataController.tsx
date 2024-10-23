@@ -8,40 +8,41 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
   const sigma = useSigma();
   const graph = sigma.getGraph();
 
-  const calculateLinchpinScores = useCallback(() => {
+  const checkSecondDegreeConnections = useCallback(() => {
+    const nodeEdgeColors = new Map();
+
     graph.forEachNode((nodeKey) => {
-      if (graph.getNodeAttribute(nodeKey, "hidden")) {
-        graph.setNodeAttribute(nodeKey, "linchpinScore", 0);
-        return;
-      }
+      const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
+      const connectedNodes = graph.neighbors(nodeKey);
+      let redEdges = 0;
+      let totalEdges = connectedNodes.length;
+      
+      const nodeColors = new Map();
 
-      const firstDegreeConnections = new Set<string>();
-      const secondDegreeConnections = new Set<string>();
-
-      // Get first-degree connections
-      graph.forEachNeighbor(nodeKey, (neighbor) => {
-        if (!graph.getNodeAttribute(neighbor, "hidden")) {
-          firstDegreeConnections.add(neighbor);
+      connectedNodes.forEach(connectedNodeKey => {
+        const secondDegreeNodes = graph.neighbors(connectedNodeKey);
+        const hasMatchingSecondDegreeNode = secondDegreeNodes.some(secondDegreeNodeKey => 
+          secondDegreeNodeKey !== nodeKey && 
+          graph.getNodeAttribute(secondDegreeNodeKey, "cluster") === nodeCluster
+        );
+        
+        const color = hasMatchingSecondDegreeNode ? "#66BB6A" : "#FF0000";
+        nodeColors.set(connectedNodeKey, color);
+        
+        if (!hasMatchingSecondDegreeNode) {
+          redEdges++;
         }
       });
 
-      // Get second-degree connections
-      firstDegreeConnections.forEach((neighbor) => {
-        graph.forEachNeighbor(neighbor, (secondNeighbor) => {
-          if (!graph.getNodeAttribute(secondNeighbor, "hidden") && 
-              secondNeighbor !== nodeKey && 
-              !firstDegreeConnections.has(secondNeighbor)) {
-            secondDegreeConnections.add(secondNeighbor);
-          }
-        });
-      });
+      nodeEdgeColors.set(nodeKey, nodeColors);
 
-      const totalConnections = firstDegreeConnections.size + secondDegreeConnections.size;
-      const linchpinScore = totalConnections > 0 ? secondDegreeConnections.size / totalConnections : 0;
-
+      const linchpinScore = totalEdges > 0 ? redEdges / totalEdges : 0;
       graph.setNodeAttribute(nodeKey, "linchpinScore", linchpinScore);
     });
+
+    return nodeEdgeColors;
   }, [graph]);
+
 
   /**
    * Feed graphology with the new dataset:
@@ -54,17 +55,27 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     const communities = keyBy(dataset.communities, "key");
 
     dataset.nodes.forEach((node) => {
-      graph.addNode(node.key, {
+      const nodeAttributes = {
         ...node,
         ...omit(clusters[node.cluster], "key"),
         image: `${process.env.PUBLIC_URL}/images/${tags[node.tag].image}`,
-      });
+      };
+
+      // Add healthzone and schooltype if they exist
+      if ('healthzone' in node) {
+        nodeAttributes.healthzone = node.healthzone;
+      }
+      if ('schooltype' in node) {
+        nodeAttributes.schooltype = node.schooltype;
+      }
+
+      graph.addNode(node.key, nodeAttributes);
     });
 
     dataset.edges.forEach(([source, target]) => graph.addEdge(source, target, { size: 2 })); // Set initial edge thickness here
 
     // After adding all nodes and edges, we can perform our analysis
-    calculateLinchpinScores();
+    checkSecondDegreeConnections();
 
     // Use degrees as node sizes:
     const scores = graph.nodes().map((node) => graph.getNodeAttribute(node, "score"));
@@ -83,7 +94,7 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     );
 
     return () => graph.clear();
-  }, [graph, dataset, calculateLinchpinScores]);
+  }, [graph, dataset, checkSecondDegreeConnections]);
 
   /**
    * Apply filters to graphology:

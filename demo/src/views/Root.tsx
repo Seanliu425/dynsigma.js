@@ -39,6 +39,8 @@ const Root: FC = () => {
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [showCluster, setShowCluster] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
+  const [showHealthZone, setShowHealthZone] = useState(false);
+  const [showSchoolType, setShowSchoolType] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -174,6 +176,10 @@ const Root: FC = () => {
                   setShowCluster={setShowCluster}
                   showCommunity={showCommunity}  // Add this line
                   setShowCommunity={setShowCommunity}  // Add this line
+                  showHealthZone={showHealthZone}
+                  setShowHealthZone={setShowHealthZone}
+                  showSchoolType={showSchoolType}
+                  setShowSchoolType={setShowSchoolType}
                 />
 
                 <ClustersPanel

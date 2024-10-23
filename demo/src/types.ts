@@ -1,12 +1,13 @@
 export interface NodeData {
   key: string;
   label: string;
-  tag: string;
-  URL: string;
   cluster: string;
-  x: number;
-  y: number;
-  community?: string;  // Add this optional field for community
+  tag: string;
+  community: string;
+  score: number;
+  // Add these new properties:
+  healthzone?: string;
+  schooltype?: string;
 }
 
 export interface Cluster {

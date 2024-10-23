@@ -37,6 +37,8 @@ const GraphPage: FC = () => {
   const [overlayVisible, setOverlayVisible] = useState(true);
   const [showCluster, setShowCluster] = useState(false);
   const [showCommunity, setShowCommunity] = useState(false);
+  const [showHealthZone, setShowHealthZone] = useState(false);
+  const [showSchoolType, setShowSchoolType] = useState(false);
 
   // Load data on mount:
   useEffect(() => {
@@ -164,6 +166,10 @@ const GraphPage: FC = () => {
                   setShowCluster={setShowCluster}
                   showCommunity={showCommunity}
                   setShowCommunity={setShowCommunity}
+                  showHealthZone={showHealthZone}
+                  setShowHealthZone={setShowHealthZone}
+                  showSchoolType={showSchoolType}
+                  setShowSchoolType={setShowSchoolType}
                 />
               
                 <ClustersPanel

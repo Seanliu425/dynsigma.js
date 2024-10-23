@@ -12,6 +12,10 @@ interface SecondDescriptionPanelProps {
   setShowCluster: (value: boolean) => void;
   showCommunity: boolean;
   setShowCommunity: (value: boolean) => void;
+  showHealthZone: boolean;
+  setShowHealthZone: (value: boolean) => void;
+  showSchoolType: boolean;
+  setShowSchoolType: (value: boolean) => void;
 }
 
 interface Connection {
@@ -26,7 +30,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   showCluster,
   setShowCluster,
   showCommunity,
-  setShowCommunity
+  setShowCommunity,
+  showHealthZone,
+  setShowHealthZone,
+  showSchoolType,
+  setShowSchoolType
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
@@ -112,29 +120,55 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     }
   };
 
-  const isSchool = clickedNode ? graph.getNodeAttribute(clickedNode, "cluster") === "School" : false;
-  const nodeTag = clickedNode ? graph.getNodeAttribute(clickedNode, "tag") : null;
+  const handleHealthZoneToggle = () => {
+    if (clickedNode && healthZone) {
+      setShowHealthZone(!showHealthZone);
+    }
+  };
+
+  const handleSchoolTypeToggle = () => {
+    if (clickedNode && isSchool && schoolType) {
+      setShowSchoolType(!showSchoolType);
+    }
+  };
+
+  const getNodeAttribute = (attribute: string) => {
+    if (!clickedNode) return null;
+    const value = graph.getNodeAttribute(clickedNode, attribute);
+    console.log(`${attribute} for node ${clickedNode}:`, value); // Debug log
+    return value;
+  };
+
+  const healthZone = getNodeAttribute("healthZone");
+  const schoolType = getNodeAttribute("schoolType");
+  const isSchool = getNodeAttribute("cluster") === "School";
+  const nodeTag = getNodeAttribute("tag");
+
   const showCommunityButton = clickedNode && nodeTag !== "Provider";
+  const showHealthZoneButton = !!healthZone;
+  const showSchoolTypeButton = isSchool && !!schoolType;
 
   const clusterButtonText = isSchool 
     ? `${showCluster ? 'Hide' : 'Show'} Other Schools in Network`
     : `${showCluster ? 'Hide' : 'Show'} Other Similar Providers`;
 
-  const clusterButtonClass = `${styles.button} ${styles.clusterButton} ${
-    isSchool ? styles.schoolButton : styles.providerButton
-  }`;
-
-  console.log('Button class:', clusterButtonClass);
-  console.log('Is school:', isSchool);
-  console.log('Show cluster:', showCluster);
-
   const communityButtonText = `${showCommunity ? 'Hide' : 'Show'} Other Community Schools`;
+  const healthZoneButtonText = `${showHealthZone ? 'Hide' : 'Show'} Same Health Zone`;
+  const schoolTypeButtonText = `${showSchoolType ? 'Hide' : 'Show'} Same School Type`;
 
   useEffect(() => {
-    if (!clickedNode || nodeTag === "Provider") {
+    if (!clickedNode) {
+      setShowCluster(false);
       setShowCommunity(false);
+      setShowHealthZone(false);
+      setShowSchoolType(false);
+    } else if (nodeTag === "Provider") {
+      setShowCommunity(false);
+      setShowSchoolType(false);
+    } else if (!isSchool) {
+      setShowSchoolType(false);
     }
-  }, [clickedNode, nodeTag, setShowCommunity]);
+  }, [clickedNode, nodeTag, isSchool, setShowCluster, setShowCommunity, setShowHealthZone, setShowSchoolType]);
 
   return (
     <Panel
@@ -152,9 +186,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
             <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
             <p><strong>Community:</strong> {graph.getNodeAttribute(clickedNode, "community")}</p>
-            <p><strong>Network:</strong> {graph.getNodeAttribute(clickedNode, "tag")}</p>
+            <p><strong>Network:</strong> {nodeTag}</p>
             <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
             <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
+            {healthZone && <p><strong>Health Zone:</strong> {healthZone}</p>}
+            {isSchool && schoolType && <p><strong>School Type:</strong> {schoolType}</p>}
           </>
         ) : (
           <p>No node selected</p>
@@ -200,7 +236,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           </div>
         )}
 
-        {/* Controls for second-degree connections, cluster, and community */}
+        {/* Controls for second-degree connections, cluster, community, health zone, and school type */}
         <div className={styles.controls}>
           <button
             className={`${styles.button} ${styles.secondDegreeButton}`}
@@ -210,8 +246,8 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             {showSecondDegree ? 'Hide' : 'Show'} Second-degree Connections
           </button>
           <button
-            className={clusterButtonClass}
-            onClick={handleClusterToggle}
+            className={`${styles.button} ${styles.clusterButton}`}
+            onClick={() => setShowCluster(!showCluster)}
             disabled={!clickedNode}
           >
             {clusterButtonText}
@@ -219,9 +255,25 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
           {showCommunityButton && (
             <button
               className={`${styles.button} ${styles.communityButton}`}
-              onClick={handleCommunityToggle}
+              onClick={() => setShowCommunity(!showCommunity)}
             >
               {communityButtonText}
+            </button>
+          )}
+          {showHealthZoneButton && (
+            <button
+              className={`${styles.button} ${styles.healthZoneButton}`}
+              onClick={handleHealthZoneToggle}
+            >
+              {healthZoneButtonText}
+            </button>
+          )}
+          {showSchoolTypeButton && (
+            <button
+              className={`${styles.button} ${styles.schoolTypeButton}`}
+              onClick={handleSchoolTypeToggle}
+            >
+              {schoolTypeButtonText}
             </button>
           )}
         </div>

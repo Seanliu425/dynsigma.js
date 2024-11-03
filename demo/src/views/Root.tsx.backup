@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { SigmaContainer, ZoomControl, FullScreenControl } from "react-sigma-v2";
 import { omit, mapValues, keyBy, constant } from "lodash";
-import { useSearchParams } from 'react-router-dom';
 
 import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
 
@@ -43,8 +42,6 @@ const Root: FC = () => {
   const [showHealthZone, setShowHealthZone] = useState(false);
   const [showSchoolType, setShowSchoolType] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
   // Load data on mount:
   useEffect(() => {
     fetch(`${process.env.PUBLIC_URL}/dataset.json`)
@@ -57,46 +54,6 @@ const Root: FC = () => {
           communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),
           networkAttribute: "tag"
         });
-        
-        // Handle URL parameters after data is loaded
-        const nodeId = searchParams.get("node");
-        const view = searchParams.get("view");
-        
-        // Set overlay visibility based on URL parameters
-        if (nodeId || view) {
-          setOverlayVisible(false);
-        }
-        
-        if (nodeId) {
-          setClickedNode(nodeId);
-        }
-        
-        if (view) {
-          setShowSecondDegree(false);
-          setShowCluster(false);
-          setShowCommunity(false);
-          setShowHealthZone(false);
-          setShowSchoolType(false);
-
-          switch (view) {
-            case "secondDegree":
-              setShowSecondDegree(true);
-              break;
-            case "cluster":
-              setShowCluster(true);
-              break;
-            case "community":
-              setShowCommunity(true);
-              break;
-            case "healthZone":
-              setShowHealthZone(true);
-              break;
-            case "schoolType":
-              setShowSchoolType(true);
-              break;
-          }
-        }
-
         requestAnimationFrame(() => setDataReady(true));
       });
   }, []);
@@ -109,38 +66,6 @@ const Root: FC = () => {
       setShowCommunity(false);
     }
   }, [clickedNode]);
-
-  // Effect for updating URL when node is clicked
-  useEffect(() => {
-    if (clickedNode) {
-      setSearchParams({ node: clickedNode });
-    } else {
-      setSearchParams({});
-    }
-  }, [clickedNode, setSearchParams]);
-
-  // Effect for updating URL when visualization changes
-  useEffect(() => {
-    if (!clickedNode) return;
-
-    const params: { node: string; view?: string } = { node: clickedNode };
-    
-    if (showSecondDegree) params.view = "secondDegree";
-    else if (showCluster) params.view = "cluster";
-    else if (showCommunity) params.view = "community";
-    else if (showHealthZone) params.view = "healthZone";
-    else if (showSchoolType) params.view = "schoolType";
-
-    setSearchParams(params);
-  }, [
-    clickedNode,
-    showSecondDegree,
-    showCluster,
-    showCommunity,
-    showHealthZone,
-    showSchoolType,
-    setSearchParams
-  ]);
 
   if (!dataset) return null;
 

@@ -43,6 +43,31 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     return nodeEdgeColors;
   }, [graph]);
 
+  const countVisibleEdges = useCallback((nodeId: string) => {
+    let visibleEdges = 0;
+    graph.forEachEdge(nodeId, (edge, attrs, source, target) => {
+      const sourceHidden = graph.getNodeAttribute(source, "hidden");
+      const targetHidden = graph.getNodeAttribute(target, "hidden");
+      if (!sourceHidden && !targetHidden && !attrs.hidden) {
+        visibleEdges++;
+      }
+    });
+    return visibleEdges;
+  }, [graph]);
+
+  const updateVisibleEdgeCounts = useCallback(() => {
+    graph.forEachNode(node => {
+      let visibleEdges = 0;
+      graph.forEachEdge(node, (edge, attrs, source, target) => {
+        const sourceHidden = graph.getNodeAttribute(source, "hidden");
+        const targetHidden = graph.getNodeAttribute(target, "hidden");
+        if (!sourceHidden && !targetHidden && !attrs.hidden) {
+          visibleEdges++;
+        }
+      });
+      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
+    });
+  }, [graph]);
 
   /**
    * Feed graphology with the new dataset:
@@ -77,21 +102,35 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     // After adding all nodes and edges, we can perform our analysis
     checkSecondDegreeConnections();
 
-    // Use degrees as node sizes:
-    const scores = graph.nodes().map((node) => graph.getNodeAttribute(node, "score"));
+    // Get linchpin scores for sizing
+    const scores = graph.nodes().map((node) => {
+      const degree = graph.neighbors(node).length;
+      const tag = graph.getNodeAttribute(node, "tag");
+      if (degree < 2 || tag === "Provider") {
+        return 0;
+      }
+      return graph.getNodeAttribute(node, "linchpinScore");
+    });
     const minDegree = Math.min(...scores);
     const maxDegree = Math.max(...scores);
     const MIN_NODE_SIZE = 3;
-    const MAX_NODE_SIZE = 20;
-    graph.forEachNode((node) =>
-      graph.setNodeAttribute(
-        node,
-        "size",
-        ((graph.getNodeAttribute(node, "score") - minDegree) / (maxDegree - minDegree)) *
-          (MAX_NODE_SIZE - MIN_NODE_SIZE) +
-          MIN_NODE_SIZE,
-      ),
-    );
+    const MAX_NODE_SIZE = 12;
+    
+    graph.forEachNode((node) => {
+      const degree = graph.neighbors(node).length;
+      const tag = graph.getNodeAttribute(node, "tag");
+      if (degree < 2 || tag === "provider") {
+        graph.setNodeAttribute(node, "size", MIN_NODE_SIZE);
+      } else {
+        graph.setNodeAttribute(
+          node,
+          "size",
+          ((graph.getNodeAttribute(node, "linchpinScore") - minDegree) / (maxDegree - minDegree)) *
+            (MAX_NODE_SIZE - MIN_NODE_SIZE) +
+            MIN_NODE_SIZE,
+        );
+      }
+    });
 
     return () => graph.clear();
   }, [graph, dataset, checkSecondDegreeConnections]);
@@ -100,15 +139,15 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
    * Apply filters to graphology:
    */
   useEffect(() => {
-    const { clusters, tags, communities } = filters;
-    graph.forEachNode((node) => {
-      const nodeData = graph.getNodeAttributes(node);
-      const isClusterVisible = clusters[nodeData.cluster];
-      const isTagVisible = tags[nodeData.tag];
-      const isCommunityVisible = communities[nodeData.community];
-      graph.setNodeAttribute(node, "filteredOut", !isClusterVisible || !isTagVisible || !isCommunityVisible);
+    const { clusters, tags } = filters;
+    graph.forEachNode((node, { cluster, tag }) => {
+      const isHidden = !clusters[cluster] || !tags[tag];
+      graph.setNodeAttribute(node, "hidden", isHidden);
     });
-  }, [graph, filters]);
+
+    // Update visible edge counts after changing visibility
+    updateVisibleEdgeCounts();
+  }, [graph, filters, updateVisibleEdgeCounts]);
 
   return <>{children}</>;
 };

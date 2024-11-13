@@ -73,8 +73,15 @@ const GraphSettingsController: FC<{
     sigma.setSetting(
       "nodeReducer",
       (node, data) => {
-        // First, check if the node is filtered out
-        if (graph.getNodeAttribute(node, "filteredOut")) {
+        // First check if node is filtered by communities panel
+        const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
+        if (communityFiltered) {
+          return { ...data, hidden: true };
+        }
+
+        // Then check visible edge count
+        const visibleEdgeCount = graph.getNodeAttribute(node, "visibleEdgeCount") || 0;
+        if (visibleEdgeCount === 0) {
           return { ...data, hidden: true };
         }
 
@@ -118,10 +125,9 @@ const GraphSettingsController: FC<{
         if (isVisible(node)) {
           return { ...data, hidden: false };
         } else {
-          // Node is not visible
           return clickedNode 
-            ? { ...data, hidden: true }  // Hide when clicked
-            : { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };  // Fade when hovered
+            ? { ...data, hidden: true }
+            : { ...data, color: NODE_FADE_COLOR, zIndex: 0, label: "", hidden: false };
         }
       }
     );

@@ -25,9 +25,12 @@ const CommunitiesPanel: FC<{
 
   const nodesPerCommunity = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, attrs) => {
+    graph.forEachNode((node, attrs) => {
       if (attrs.community) {
-        index[attrs.community] = (index[attrs.community] || 0) + 1;
+        const visibleEdgeCount = graph.getNodeAttribute(node, "visibleEdgeCount") || 0;
+        if (visibleEdgeCount > 0) {
+          index[attrs.community] = (index[attrs.community] || 0) + 1;
+        }
       }
     });
     return index;
@@ -40,9 +43,12 @@ const CommunitiesPanel: FC<{
   useEffect(() => {
     const updateVisibleNodes = () => {
       const index: Record<string, number> = {};
-      graph.forEachNode((_, attrs) => {
+      graph.forEachNode((node, attrs) => {
         if (!attrs.hidden && attrs.community) {
-          index[attrs.community] = (index[attrs.community] || 0) + 1;
+          const visibleEdgeCount = graph.getNodeAttribute(node, "visibleEdgeCount") || 0;
+          if (visibleEdgeCount > 0) {
+            index[attrs.community] = (index[attrs.community] || 0) + 1;
+          }
         }
       });
       setVisibleNodesPerCommunity(index);
@@ -163,6 +169,28 @@ const CommunitiesPanel: FC<{
       </div>
     );
   }, [isZoneVisible, toggleHealthZone]);
+
+  useEffect(() => {
+    // First apply community filtering
+    graph.forEachNode((node) => {
+      const community = graph.getNodeAttribute(node, "community");
+      const shouldBeVisible = filters.communities[community];
+      graph.setNodeAttribute(node, "filteredOut", !shouldBeVisible);
+    });
+
+    // Then update visible edge counts
+    graph.forEachNode(node => {
+      let visibleEdges = 0;
+      graph.forEachEdge(node, (edge, attrs, source, target) => {
+        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
+        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
+        if (!sourceFiltered && !targetFiltered) {
+          visibleEdges++;
+        }
+      });
+      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
+    });
+  }, [graph, filters.communities]);
 
   return (
     <Panel title={<><MdCategory className="text-muted" /> School Community</>}>

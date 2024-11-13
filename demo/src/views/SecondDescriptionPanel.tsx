@@ -216,7 +216,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         {clickedNode ? (
           <>
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
-            <p><strong>Number of Connections:</strong> {firstDegreeConnections.length}</p>
+            <p><strong>Visible Connections:</strong> {graph.getNodeAttribute(clickedNode, "visibleEdgeCount")}</p>
             {!isSchool && (
               <>
                 <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>

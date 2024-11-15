@@ -4,7 +4,22 @@ import { keyBy, omit } from "lodash";
 
 import { Dataset, FiltersState } from "../types";
 
-const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ dataset, filters, children }) => {
+interface Props {
+  dataset: Dataset;
+  filters: FiltersState;
+  nodeSizingMode: 'linchpin' | 'score';
+  showAllConnections?: boolean;
+  selectedNode?: string | null;
+}
+
+const GraphDataController: FC<Props> = ({
+  dataset,
+  filters,
+  nodeSizingMode,
+  showAllConnections = false,
+  selectedNode = null,
+  children
+}) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
 
@@ -69,6 +84,49 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     });
   }, [graph]);
 
+  const updateNodeSizes = useCallback(() => {
+    const scores = graph.nodes().map((node) => {
+      if (nodeSizingMode === 'linchpin') {
+        const degree = graph.neighbors(node).length;
+        const tag = graph.getNodeAttribute(node, "tag");
+        if (degree < 2 || tag === "Provider") {
+          return 0;
+        }
+        return graph.getNodeAttribute(node, "linchpinScore");
+      } else {
+        return graph.getNodeAttribute(node, "score");
+      }
+    });
+
+    const minDegree = Math.min(...scores);
+    const maxDegree = Math.max(...scores);
+    const MIN_NODE_SIZE = 3;
+    const MAX_NODE_SIZE = nodeSizingMode === 'linchpin' ? 12 : 20;
+    
+    graph.forEachNode((node) => {
+      if (nodeSizingMode === 'linchpin') {
+        const degree = graph.neighbors(node).length;
+        const cluster = graph.getNodeAttribute(node, "cluster");
+        if (degree < 2 || cluster === "School") {
+          graph.setNodeAttribute(node, "size", MIN_NODE_SIZE);
+          return;
+        }
+      }
+      
+      const value = nodeSizingMode === 'linchpin' 
+        ? graph.getNodeAttribute(node, "linchpinScore")
+        : graph.getNodeAttribute(node, "score");
+        
+      graph.setNodeAttribute(
+        node,
+        "size",
+        ((value - minDegree) / (maxDegree - minDegree)) *
+          (MAX_NODE_SIZE - MIN_NODE_SIZE) +
+          MIN_NODE_SIZE,
+      );
+    });
+  }, [graph, nodeSizingMode]);
+
   /**
    * Feed graphology with the new dataset:
    */
@@ -118,8 +176,8 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
     
     graph.forEachNode((node) => {
       const degree = graph.neighbors(node).length;
-      const tag = graph.getNodeAttribute(node, "tag");
-      if (degree < 2 || tag === "provider") {
+      const cluster = graph.getNodeAttribute(node, "cluster");
+      if (degree < 2 || cluster === "School") {
         graph.setNodeAttribute(node, "size", MIN_NODE_SIZE);
       } else {
         graph.setNodeAttribute(
@@ -132,6 +190,12 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
       }
     });
 
+    // After adding all nodes and edges, set the total edge count for each node
+    graph.forEachNode(node => {
+      const totalEdges = graph.degree(node);  // gets total number of edges for the node
+      graph.setNodeAttribute(node, "totalEdgeCount", totalEdges);
+    });
+
     return () => graph.clear();
   }, [graph, dataset, checkSecondDegreeConnections]);
 
@@ -140,14 +204,32 @@ const GraphDataController: FC<{ dataset: Dataset; filters: FiltersState }> = ({ 
    */
   useEffect(() => {
     const { clusters, tags } = filters;
+    
+    // First apply base filters
     graph.forEachNode((node, { cluster, tag }) => {
       const isHidden = !clusters[cluster] || !tags[tag];
       graph.setNodeAttribute(node, "hidden", isHidden);
+      graph.setNodeAttribute(node, "filteredOut", isHidden);
     });
 
-    // Update visible edge counts after changing visibility
+    // Then override with showAllConnections if active
+    if (showAllConnections && selectedNode) {
+      // Show selected node and its neighbors
+      graph.setNodeAttribute(selectedNode, "hidden", false);
+      graph.forEachNeighbor(selectedNode, (neighbor) => {
+        graph.setNodeAttribute(neighbor, "hidden", false);
+      });
+    }
+
+    // Update visible edge counts
     updateVisibleEdgeCounts();
-  }, [graph, filters, updateVisibleEdgeCounts]);
+  }, [graph, filters, showAllConnections, selectedNode, updateVisibleEdgeCounts]);
+
+  // Add effect to update sizes when mode changes
+  useEffect(() => {
+    if (!graph) return;
+    updateNodeSizes();
+  }, [nodeSizingMode, updateNodeSizes]);
 
   return <>{children}</>;
 };

@@ -24,6 +24,8 @@ import { GrClose } from "react-icons/gr";
 import { BiRadioCircleMarked, BiBookContent } from "react-icons/bi";
 import { BsArrowsFullscreen, BsFullscreenExit, BsZoomIn, BsZoomOut } from "react-icons/bs";
 
+type NodeSizingMode = 'linchpin' | 'score';
+
 const Root: FC = () => {
   const [showContents, setShowContents] = useState(false);
   const [dataReady, setDataReady] = useState(false);
@@ -42,6 +44,7 @@ const Root: FC = () => {
   const [showCommunity, setShowCommunity] = useState(false);
   const [showHealthZone, setShowHealthZone] = useState(false);
   const [showSchoolType, setShowSchoolType] = useState(false);
+  const [nodeSizingMode, setNodeSizingMode] = useState<NodeSizingMode>('linchpin');
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -199,7 +202,11 @@ const Root: FC = () => {
           setClickedNode={setClickedNode}
           interactionsEnabled={!overlayVisible}
         />
-        <GraphDataController dataset={dataset} filters={filtersState} />
+        <GraphDataController 
+          dataset={dataset} 
+          filters={filtersState}
+          nodeSizingMode={nodeSizingMode}
+        />
 
         {dataReady && (
           <>
@@ -255,6 +262,8 @@ const Root: FC = () => {
                   setShowHealthZone={setShowHealthZone}
                   showSchoolType={showSchoolType}
                   setShowSchoolType={setShowSchoolType}
+                  nodeSizingMode={nodeSizingMode}
+                  setNodeSizingMode={setNodeSizingMode}
                 />
 
                 <ClustersPanel

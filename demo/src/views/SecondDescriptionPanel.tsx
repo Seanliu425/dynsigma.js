@@ -16,6 +16,8 @@ interface SecondDescriptionPanelProps {
   setShowHealthZone: (value: boolean) => void;
   showSchoolType: boolean;
   setShowSchoolType: (value: boolean) => void;
+  nodeSizingMode: 'linchpin' | 'score';
+  setNodeSizingMode: (mode: 'linchpin' | 'score') => void;
 }
 
 interface Connection {
@@ -34,12 +36,15 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   showHealthZone,
   setShowHealthZone,
   showSchoolType,
-  setShowSchoolType
+  setShowSchoolType,
+  nodeSizingMode,
+  setNodeSizingMode
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
   const [showAllFirstDegree, setShowAllFirstDegree] = useState(false);
   const [showAllSecondDegree, setShowAllSecondDegree] = useState(false);
+  const [showAllConnections, setShowAllConnections] = useState(false);
 
   const firstDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
@@ -202,6 +207,45 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     }
   }, [clickedNode, nodeTag, isSchool, setShowCluster, setShowCommunity, setShowHealthZone, setShowSchoolType]);
 
+  useEffect(() => {
+    if (!clickedNode) {
+      setShowAllConnections(false);
+      return;
+    }
+
+    if (showAllConnections) {
+      // Show all edges connected to clicked node
+      graph.forEachEdge((edge, attributes, source, target) => {
+        if (source === clickedNode || target === clickedNode) {
+          graph.setEdgeAttribute(edge, "hidden", false);
+          // Show the connected nodes as well
+          graph.setNodeAttribute(source, "hidden", false);
+          graph.setNodeAttribute(target, "hidden", false);
+        }
+      });
+    } else {
+      // Reset to previous state based on other filters
+      graph.forEachEdge((edge) => {
+        const wasFilteredOut = graph.getEdgeAttribute(edge, "filteredOut");
+        if (wasFilteredOut) {
+          graph.setEdgeAttribute(edge, "hidden", true);
+        }
+      });
+      graph.forEachNode((node) => {
+        const wasFilteredOut = graph.getNodeAttribute(node, "filteredOut");
+        if (wasFilteredOut) {
+          graph.setNodeAttribute(node, "hidden", true);
+        }
+      });
+    }
+  }, [clickedNode, showAllConnections, graph]);
+
+  useEffect(() => {
+    setShowAllConnections(false);
+  }, [clickedNode]);
+
+  const sizingButtonText = `Size Nodes by ${nodeSizingMode === 'linchpin' ? 'Score' : 'Linchpin'}`;
+
   return (
     <Panel
       initiallyDeployed={true}
@@ -216,6 +260,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         {clickedNode ? (
           <>
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
+            <p><strong>Total Connections:</strong> {graph.getNodeAttribute(clickedNode, "totalEdgeCount")}</p>
             <p><strong>Visible Connections:</strong> {graph.getNodeAttribute(clickedNode, "visibleEdgeCount")}</p>
             {!isSchool && (
               <>
@@ -300,6 +345,19 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
               {communityButtonText}
             </button>
           )}
+          <button
+            className={`${styles.button} ${styles.showAllConnectionsButton}`}
+            onClick={() => setShowAllConnections(!showAllConnections)}
+            disabled={!clickedNode}
+          >
+            {showAllConnections ? "Hide All Connections" : "Show All Connections"}
+          </button>
+          <button
+            className={`${styles.button} ${styles.sizingButton}`}
+            onClick={() => setNodeSizingMode(nodeSizingMode === 'linchpin' ? 'score' : 'linchpin')}
+          >
+            {sizingButtonText}
+          </button>
         </div>
       </div>
     </Panel>

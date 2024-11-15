@@ -39,6 +39,9 @@ const GraphPage: FC = () => {
   const [showCommunity, setShowCommunity] = useState(false);
   const [showHealthZone, setShowHealthZone] = useState(false);
   const [showSchoolType, setShowSchoolType] = useState(false);
+  const [nodeSizingMode, setNodeSizingMode] = useState<'linchpin' | 'score'>('linchpin');
+  const [showAllConnections, setShowAllConnections] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   // Load data on mount:
   useEffect(() => {
@@ -114,7 +117,13 @@ const GraphPage: FC = () => {
           setClickedNode={setClickedNode}
           interactionsEnabled={!overlayVisible}
         />
-        <GraphDataController dataset={dataset} filters={filtersState} />
+        <GraphDataController 
+          dataset={dataset} 
+          filters={filtersState}
+          nodeSizingMode={nodeSizingMode}
+          showAllConnections={showAllConnections}
+          selectedNode={selectedNode}
+        />
 
         {dataReady && (
           <>
@@ -170,6 +179,8 @@ const GraphPage: FC = () => {
                   setShowHealthZone={setShowHealthZone}
                   showSchoolType={showSchoolType}
                   setShowSchoolType={setShowSchoolType}
+                  nodeSizingMode={nodeSizingMode}
+                  setNodeSizingMode={setNodeSizingMode}
                 />
               
                 <ClustersPanel

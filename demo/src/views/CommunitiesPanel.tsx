@@ -171,11 +171,14 @@ const CommunitiesPanel: FC<{
   }, [isZoneVisible, toggleHealthZone]);
 
   useEffect(() => {
-    // First apply community filtering
+    // First check year filter, then apply community filtering
     graph.forEachNode((node) => {
+      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
       const community = graph.getNodeAttribute(node, "community");
       const shouldBeVisible = filters.communities[community];
-      graph.setNodeAttribute(node, "filteredOut", !shouldBeVisible);
+      
+      // If yearFiltered is true, node stays filtered out regardless of community filter
+      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
     });
 
     // Then update visible edge counts
@@ -192,15 +195,21 @@ const CommunitiesPanel: FC<{
     });
   }, [graph, filters.communities]);
 
+  // Modify the check all button handler
+  const handleCheckAll = () => {
+    // Set all communities to visible in the filters
+    setCommunities(mapValues(keyBy(communities, "key"), () => true));
+  };
+
   return (
     <Panel title={<><MdCategory className="text-muted" /> School Community</>}>
       <p><i className="text-muted">Click a category to show/hide related pages from the network.</i></p>
       <p className="buttons">
-        <button className="btn" onClick={() => setCommunities(mapValues(keyBy(communities, "key"), () => true))}>
+        <button className="btn" onClick={handleCheckAll}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={hideAllZones}>
-          <AiOutlineCloseCircle /> Hide all zones
+        <button className="btn" onClick={() => setCommunities({})}>
+          <AiOutlineCloseCircle /> Uncheck all
         </button>
       </p>
       {healthZones.map((healthZone) => (

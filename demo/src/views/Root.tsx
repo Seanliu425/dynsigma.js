@@ -18,6 +18,7 @@ import GraphTitle from "./GraphTitle";
 import TagsPanel from "./TagsPanel";
 import HowTo from "./HowTo";
 import CommunitiesPanel from "./CommunitiesPanel";
+import YearFilter from "./YearFilter";
 
 import "react-sigma-v2/lib/react-sigma-v2.css";
 import { GrClose } from "react-icons/gr";
@@ -47,6 +48,9 @@ const Root: FC = () => {
   const [nodeSizingMode, setNodeSizingMode] = useState<NodeSizingMode>('linchpin');
 
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedYears, setSelectedYears] = useState<string[]>(["2024", "2023", "2022", "2021"]);
 
   // Load data on mount:
   useEffect(() => {
@@ -206,6 +210,8 @@ const Root: FC = () => {
           dataset={dataset} 
           filters={filtersState}
           nodeSizingMode={nodeSizingMode}
+          selectedYear={selectedYear}
+          selectedYears={selectedYears}
         />
 
         {dataReady && (
@@ -265,7 +271,10 @@ const Root: FC = () => {
                   nodeSizingMode={nodeSizingMode}
                   setNodeSizingMode={setNodeSizingMode}
                 />
-
+                <YearFilter 
+                  selectedYears={selectedYears}
+                  setSelectedYears={setSelectedYears}
+                />
                 <ClustersPanel
                   clusters={dataset.clusters}
                   filters={filtersState}

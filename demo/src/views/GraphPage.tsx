@@ -15,6 +15,7 @@ import SearchField from "./SearchField";
 import drawLabel from "../canvas-utils";
 import GraphTitle from "./GraphTitle";
 import TagsPanel from "./TagsPanel";
+import YearFilter from "./YearFilter";
 
 import "react-sigma-v2/lib/react-sigma-v2.css";
 import { GrClose } from "react-icons/gr";
@@ -42,6 +43,8 @@ const GraphPage: FC = () => {
   const [nodeSizingMode, setNodeSizingMode] = useState<'linchpin' | 'score'>('linchpin');
   const [showAllConnections, setShowAllConnections] = useState(false);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedYears, setSelectedYears] = useState<string[]>(["2024"]);
 
   // Load data on mount:
   useEffect(() => {
@@ -121,6 +124,8 @@ const GraphPage: FC = () => {
           dataset={dataset} 
           filters={filtersState}
           nodeSizingMode={nodeSizingMode}
+          selectedYear={selectedYear}
+          selectedYears={selectedYears}
           showAllConnections={showAllConnections}
           selectedNode={selectedNode}
         />
@@ -163,6 +168,10 @@ const GraphPage: FC = () => {
               </div>
               <GraphTitle filters={filtersState} />
               <div className="panels">
+                <YearFilter 
+                  selectedYears={selectedYears}
+                  setSelectedYears={setSelectedYears}
+                />
                 <SearchField 
                   filters={filtersState}
                   setClickedNode={setClickedNode}

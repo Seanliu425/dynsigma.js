@@ -149,3 +149,12 @@
   border-color: #28a745;
 }
 
+.sizingButton {
+  background-color: #6c757d;
+  color: white;
+}
+
+.sizingButton:hover {
+  background-color: #5a6268;
+}
+

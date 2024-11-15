@@ -48,3 +48,6 @@ export interface Node extends NodeData {
     matchingSecondDegreeNodes: string[];
   }>;
 }
+
+// Add this type
+export type NodeSizingMode = 'linchpin' | 'score';

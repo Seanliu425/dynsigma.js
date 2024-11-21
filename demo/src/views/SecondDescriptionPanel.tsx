@@ -346,13 +346,6 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             </button>
           )}
           <button
-            className={`${styles.button} ${styles.showAllConnectionsButton}`}
-            onClick={() => setShowAllConnections(!showAllConnections)}
-            disabled={!clickedNode}
-          >
-            {showAllConnections ? "Hide All Connections" : "Show All Connections"}
-          </button>
-          <button
             className={`${styles.button} ${styles.sizingButton}`}
             onClick={() => setNodeSizingMode(nodeSizingMode === 'linchpin' ? 'score' : 'linchpin')}
           >

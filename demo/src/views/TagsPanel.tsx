@@ -53,6 +53,31 @@ const TagsPanel: FC<{
     return () => clearInterval(intervalId);
   }, [graph, filters]);
 
+  useEffect(() => {
+    // First check year filter, then apply tag filtering
+    graph.forEachNode((node) => {
+      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
+      const nodeTag = graph.getNodeAttribute(node, "tag");
+      const shouldBeVisible = filters.tags[nodeTag];
+      
+      // If yearFiltered is true, node stays filtered out regardless of tag filter
+      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
+    });
+
+    // Then update visible edge counts
+    graph.forEachNode(node => {
+      let visibleEdges = 0;
+      graph.forEachEdge(node, (edge, attrs, source, target) => {
+        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
+        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
+        if (!sourceFiltered && !targetFiltered) {
+          visibleEdges++;
+        }
+      });
+      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
+    });
+  }, [graph, filters.tags]);
+
   const groupedTags = useMemo<GroupedTags>(() => {
     return groupBy(tags, 'schooltype');
   }, [tags]);

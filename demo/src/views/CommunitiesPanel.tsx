@@ -208,7 +208,7 @@ const CommunitiesPanel: FC<{
         <button className="btn" onClick={handleCheckAll}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={() => setCommunities({})}>
+        <button className="btn" onClick={hideAllZones}>
           <AiOutlineCloseCircle /> Uncheck all
         </button>
       </p>

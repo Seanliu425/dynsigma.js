@@ -1,5 +1,5 @@
 import { useSigma } from "react-sigma-v2";
-import { FC, useEffect, useCallback, PropsWithChildren } from "react";
+import { FC, useEffect, useCallback, PropsWithChildren, useMemo } from "react";
 import { keyBy, omit } from "lodash";
 
 import { Dataset, FiltersState, NodeSizingMode } from "../types";
@@ -131,6 +131,21 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     });
   }, [graph, nodeSizingMode]);
 
+  // Add a check for year attributes
+  const hasYearAttributes = useMemo(() => {
+    const years = ["2024", "2023", "2022", "2021"];
+    return years.some(year => {
+      let foundYear = false;
+      graph.forEachNode((node) => {
+        if (graph.hasNodeAttribute(node, year)) {
+          foundYear = true;
+          return false; // break the loop
+        }
+      });
+      return foundYear;
+    });
+  }, [graph]);
+
   /**
    * Feed graphology with the new dataset:
    */
@@ -211,10 +226,13 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
 
     graph.forEachNode((node) => {
       // Check all filter types
-      const yearFiltered = !selectedYears.some((year: string) => {
-        const yearValue = graph.getNodeAttribute(node, year);
-        return yearValue === "Yes";
-      });
+      const yearFiltered = hasYearAttributes 
+        ? !selectedYears.some((year: string) => {
+            const yearValue = graph.getNodeAttribute(node, year);
+            return yearValue === "Yes";
+          })
+        : false; // If no year attributes exist, don't filter by year
+
       const tagFiltered = graph.getNodeAttribute(node, "tagFiltered");
       const clusterFiltered = graph.getNodeAttribute(node, "clusterFiltered");
       const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
@@ -246,7 +264,7 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     });
 
     updateVisibleEdgeCounts();
-  }, [graph, filters, selectedYears, showAllConnections, selectedNode]);
+  }, [graph, filters, selectedYears, showAllConnections, selectedNode, hasYearAttributes]);
 
   // Add effect to update sizes when mode changes
   useEffect(() => {

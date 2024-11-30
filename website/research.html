@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research - Your Name</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <aside class="sidebar collapsed">
+        <button class="sidebar-toggle" aria-label="Toggle Sidebar">
+            <span class="toggle-icon">☰</span>
+        </button>
+        <nav>
+            <ul>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="research.html">Research</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <header>
+        <nav class="menu">
+            <div class="panel">
+                <div class="logo">
+                    <a href="index.html" class="text-title">
+                        <img src="./assets/images/DYN_Logo.svg" alt="DYN Logo" />
+                        <span>Digital Youth Network</span>
+                    </a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#survey">Survey</a></li>
+                    <li><a href="research.html">Research</a></li>
+                    <li><a href="index.html#results">Results</a></li>
+                    <li><a href="index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="visualization">
+            <div class="container">
+                <h2>Publications</h2>
+                <div class="viz-wrapper">
+                    <iframe
+                        src="./assets/docs/iclsposter.pdf"
+                        width="100%"
+                        height="600px"
+                        frameborder="0"
+                        title="Research Paper PDF"
+                    ></iframe>
+                </div>
+                <div class="viz-controls">
+                    <a href="./assets/docs/iclsposter.pdf" class="button" download>Download PDF</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            this.textContent = document.querySelector('.sidebar').classList.contains('collapsed') ? '☰' : '×';
+        });
+    </script>
+</body>
+</html> 

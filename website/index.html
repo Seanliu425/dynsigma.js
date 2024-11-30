@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>South Side STEM Asset Survey</title>
+    <title>Social Networks within Out-Of-School Time Providers</title>
     <meta
       name="description"
-      content="South Side STEM Asset Survey"
+      content="Social Networks within Out-Of-School Time Providers"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/apple-touch-icon.png" />
@@ -15,118 +15,84 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <aside class="sidebar collapsed">
+      <button class="sidebar-toggle" aria-label="Toggle Sidebar">
+        <span class="toggle-icon">☰</span>
+      </button>
+      <nav>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="research.html">Research</a></li>
+        </ul>
+      </nav>
+    </aside>
     <header>
-      <input type="checkbox" id="toggle-menu" />
       <nav class="menu">
-        <label for="toggle-menu" tabindex="0">
-          <img src="./assets/images/icon-menu.svg" alt="Toggle menu" class="show-menu" />
-          <img src="./assets/images/icon-close.svg" alt="Toggle menu" class="hide-menu" />
-        </label>
-
         <div class="panel">
-          <div>
-            <a href="#" class="text-title with-logo">
-              <img src="./assets/images/logo-sigma-ruby.svg" alt="" /> <strong class="text-ruby">sigma</strong
-              ><strong class="text-grey">.js</strong>
+          <div class="logo">
+            <a href="#" class="text-title">
+              <img src="./assets/images/DYN_Logo.svg" alt="DYN Logo" />
+              <span>Digital Youth Network</span>
             </a>
           </div>
-          <ul class="internal">
-            <li><a href="#architecture">Architecture</a></li>
-            <li><a href="#quickstart">Quick start</a></li>
-            <li><a href="#usecases">Use cases</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#gofurther">Go further</a></li>
-            <!--<li><a href="#inthewild">In the wild</a></li>-->
-          </ul>
-          <ul>
-            <li>
-              <a href="https://github.com/jacomyal/sigma.js" class="with-logo"
-                ><img src="./assets/images/logo-github.svg" alt="GitHub" /> <span>GitHub</span></a
-              >
-            </li>
-            <li>
-              <a href="https://twitter.com/sigmajs" class="with-logo"
-                ><img src="./assets/images/logo-twitter.svg" alt="Twitter" /> <span>Twitter</span></a
-              >
-            </li>
-            <li>
-              <a href="https://stackoverflow.com/questions/tagged/sigma.js" class="with-logo"
-                ><img src="./assets/images/logo-stackoverflow.svg" alt="StackOverflow" /> <span>StackOverflow</span></a
-              >
-            </li>
+          <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#survey">Survey</a></li>
+            <li><a href="research.html">Research</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#contact">Contact</a></li>
           </ul>
         </div>
-      </nav>
-
-      <nav class="links">
-        <ul>
-          <li>
-            <a href="https://github.com/jacomyal/sigma.js"
-              ><img src="./assets/images/logo-github.svg" alt="GitHub"
-            /></a>
-          </li>
-          <li>
-            <a href="https://twitter.com/sigmajs"><img src="./assets/images/logo-twitter.svg" alt="Twitter" /></a>
-          </li>
-          <li>
-            <a href="https://stackoverflow.com/questions/tagged/sigma.js"
-              ><img src="./assets/images/logo-stackoverflow.svg" alt="StackOverflow"
-            /></a>
-          </li>
-        </ul>
       </nav>
     </header>
 
     <main>
-      <section class="title">
-        <h1 class="with-logo">
-          <img src="./assets/images/DYN_Logo.svg" alt="" /> <span class="text-blue">Digital Youth</span
-          ><span class="text-grey"> Network </span>
-        </h1>
-        <i><strong>South Side STEM Asset Survey</strong></i>
+      <section class="hero">
+        <div class="container">
+          <h1>Social Networks within Out-Of-School Time Providers</h1>
+          <p class="subtitle">This Tool is part of a larger "Opportunity Landscaping" initiative that aims to document resources and collaboration with Chicago's Learning Ecosystems.</p>
+        </div>
       </section>
 
-      <section class="showcase">
-        <div class="wrapper">
-          <iframe  src="./demo/index.html" title="Sigma.js demo" width="100%" height="100%"></iframe>
-        </div>
-        
-        <div class="caption">
-          <div class="links">
-            <a href="./demo/index.html">open demo</a>
-            <a href="https://github.com/jacomyal/sigma.js/tree/main/demo">open demo sources</a>
+      <section class="visualization">
+        <div class="container">
+          <div class="viz-wrapper">
+            <iframe src="./demo/index.html" title="STEM Assets Visualization" width="100%" height="600px"></iframe>
+          </div>
+          <div class="viz-controls">
+            <a href="./demo/index.html" class="button">View Full Screen</a>
+            <a href="#" class="button secondary">Learn More</a>
           </div>
         </div>
-        
-       
       </section>
-      
-
-
     </main>
+
     <footer>
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>About</h3>
-          <p>Brief description of your project or company.</p>
+      <div class="container">
+        <div class="footer-grid">
+   
+          <div class="footer-section">
+            <h3>Contact</h3>
+            <p>Email: contact@digitalyouthnetwork.org</p>
+            <div class="social-links">
+              <a href="#" aria-label="GitHub"><img src="./assets/images/logo-github.svg" alt="GitHub" /></a>
+            </div>
+          </div>
         </div>
-        <div class="footer-section">
-          <h3>Links</h3>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Documentation</a></li>
-            <li><a href="#">GitHub</a></li>
-          </ul>
+        <div class="footer-bottom">
+          <p>&copy; 2024 Digital Youth Network. All rights reserved.</p>
         </div>
-        <div class="footer-section">
-          <h3>Contact</h3>
-          <p>Email: info@example.com</p>
-          <p>Follow us on <a href="#">Twitter</a></p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2023 Your Project Name. All rights reserved.</p>
       </div>
     </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        
+        toggle.addEventListener('click', () => {
+          sidebar.classList.toggle('collapsed');
+        });
+      });
+    </script>
   </body>
 </html>

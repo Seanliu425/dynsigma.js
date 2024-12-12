@@ -1,20 +1,34 @@
 .yearFilterContainer {
-  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+.checkboxContainer {
+  display: flex;
+  gap: 16px;
+}
+
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-  color: #333;
+  gap: 4px;
 }
 
 .checkbox {
   cursor: pointer;
   margin: 0;
+}
+
+.toggleAllButton {
+  margin-bottom: 10px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.toggleAllButton:hover {
+  background-color: #e9ecef;
 } 

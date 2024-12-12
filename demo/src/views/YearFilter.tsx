@@ -19,6 +19,14 @@ const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) =>
     }
   };
 
+  const handleToggleAll = () => {
+    if (selectedYears.length === years.length) {
+      setSelectedYears([]);  // Uncheck all
+    } else {
+      setSelectedYears([...years]);  // Check all
+    }
+  };
+
   return (
     <Panel
       title={
@@ -28,17 +36,25 @@ const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) =>
       }
     >
       <div className={styles.yearFilterContainer}>
-        {years.map(year => (
-          <label key={year} className={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              checked={selectedYears.includes(year)}
-              onChange={() => handleYearToggle(year)}
-              className={styles.checkbox}
-            />
-            <span>{year}</span>
-          </label>
-        ))}
+        <button 
+          onClick={handleToggleAll}
+          className={styles.toggleAllButton}
+        >
+          {selectedYears.length === years.length ? 'Uncheck All' : 'Check All'}
+        </button>
+        <div className={styles.checkboxContainer}>
+          {years.map(year => (
+            <label key={year} className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={selectedYears.includes(year)}
+                onChange={() => handleYearToggle(year)}
+                className={styles.checkbox}
+              />
+              <span>{year}</span>
+            </label>
+          ))}
+        </div>
       </div>
     </Panel>
   );

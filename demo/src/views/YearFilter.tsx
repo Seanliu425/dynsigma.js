@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import Panel from "./Panel";
 import { BsCalendar } from "react-icons/bs";
 import styles from "./YearFilter.module.css";
+import { useSigma } from "react-sigma-v2";
 
 interface YearFilterProps {
   selectedYears: string[];
@@ -9,7 +10,26 @@ interface YearFilterProps {
 }
 
 const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) => {
+  const sigma = useSigma();
+  const graph = sigma.getGraph();
   const years = ["2024", "2023", "2022", "2021"];
+
+  // Check if any nodes have year attributes
+  const hasYearAttributes = years.some(year => {
+    let foundYear = false;
+    graph.forEachNode((node) => {
+      if (graph.hasNodeAttribute(node, year)) {
+        foundYear = true;
+        return false; // break the loop
+      }
+    });
+    return foundYear;
+  });
+
+  // If no year attributes found, don't render the component
+  if (!hasYearAttributes) {
+    return null;
+  }
 
   const handleYearToggle = (year: string) => {
     if (selectedYears.includes(year)) {

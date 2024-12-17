@@ -45,7 +45,7 @@ const Root: FC = () => {
   const [showCommunity, setShowCommunity] = useState(false);
   const [showHealthZone, setShowHealthZone] = useState(false);
   const [showSchoolType, setShowSchoolType] = useState(false);
-  const [nodeSizingMode, setNodeSizingMode] = useState<NodeSizingMode>('score');
+  const [nodeSizingMode, setNodeSizingMode] = useState<NodeSizingMode>('linchpin');
 
   const [searchParams, setSearchParams] = useSearchParams();
 

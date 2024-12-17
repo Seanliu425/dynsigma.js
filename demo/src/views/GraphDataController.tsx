@@ -1,5 +1,5 @@
 import { useSigma } from "react-sigma-v2";
-import { FC, useEffect, useCallback, PropsWithChildren, useMemo } from "react";
+import { FC, useEffect, useCallback, PropsWithChildren } from "react";
 import { keyBy, omit } from "lodash";
 
 import { Dataset, FiltersState, NodeSizingMode } from "../types";
@@ -131,21 +131,6 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     });
   }, [graph, nodeSizingMode]);
 
-  // Add a check for year attributes
-  const hasYearAttributes = useMemo(() => {
-    const years = ["2024", "2023", "2022", "2021"];
-    return years.some(year => {
-      let foundYear = false;
-      graph.forEachNode((node) => {
-        if (graph.hasNodeAttribute(node, year)) {
-          foundYear = true;
-          return false; // break the loop
-        }
-      });
-      return foundYear;
-    });
-  }, [graph]);
-
   /**
    * Feed graphology with the new dataset:
    */
@@ -225,31 +210,28 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     if (!graph) return;
 
     graph.forEachNode((node) => {
-      // Check all filter types
-      const yearFiltered = hasYearAttributes 
-        ? !selectedYears.some((year: string) => {
-            const yearValue = graph.getNodeAttribute(node, year);
-            return yearValue === "Yes";
-          })
-        : false; // If no year attributes exist, don't filter by year
-
-      const tagFiltered = graph.getNodeAttribute(node, "tagFiltered");
-      const clusterFiltered = graph.getNodeAttribute(node, "clusterFiltered");
-      const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
+      // First check year filter
+      const isVisibleForAnyYear = selectedYears.some((year: string) => {
+        const yearValue = graph.getNodeAttribute(node, year);
+        return yearValue === "Yes";
+      });
 
       // Store year filter result
-      graph.setNodeAttribute(node, "yearFiltered", yearFiltered);
+      graph.setNodeAttribute(node, "yearFiltered", !isVisibleForAnyYear);
 
-      // Node is hidden if ANY filter is active
-      let shouldHide = yearFiltered || tagFiltered || clusterFiltered || communityFiltered;
+      // Get other filter status
+      const wasFilteredOut = graph.getNodeAttribute(node, "filteredOut");
+
+      // Node is hidden if either year filtered or filtered by other means
+      let shouldHide = !isVisibleForAnyYear || wasFilteredOut;
 
       // Handle showAllConnections override
       if (showAllConnections && selectedNode) {
         if (node === selectedNode) {
-          shouldHide = yearFiltered; // Only respect year filter for selected node
+          shouldHide = !isVisibleForAnyYear; // Only show if passes year filter
         } else {
           const isNeighbor = graph.neighbors(selectedNode).includes(node);
-          shouldHide = yearFiltered || !isNeighbor;
+          shouldHide = !isVisibleForAnyYear || !isNeighbor; // Only show neighbors if they pass year filter
         }
       }
       
@@ -264,7 +246,7 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     });
 
     updateVisibleEdgeCounts();
-  }, [graph, filters, selectedYears, showAllConnections, selectedNode, hasYearAttributes]);
+  }, [graph, filters, selectedYears, showAllConnections, selectedNode]);
 
   // Add effect to update sizes when mode changes
   useEffect(() => {

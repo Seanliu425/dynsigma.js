@@ -53,31 +53,6 @@ const TagsPanel: FC<{
     return () => clearInterval(intervalId);
   }, [graph, filters]);
 
-  useEffect(() => {
-    // First check year filter, then apply tag filtering
-    graph.forEachNode((node) => {
-      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
-      const nodeTag = graph.getNodeAttribute(node, "tag");
-      const shouldBeVisible = filters.tags[nodeTag];
-      
-      // If yearFiltered is true, node stays filtered out regardless of tag filter
-      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
-    });
-
-    // Then update visible edge counts
-    graph.forEachNode(node => {
-      let visibleEdges = 0;
-      graph.forEachEdge(node, (edge, attrs, source, target) => {
-        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
-        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
-        if (!sourceFiltered && !targetFiltered) {
-          visibleEdges++;
-        }
-      });
-      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
-    });
-  }, [graph, filters.tags]);
-
   const groupedTags = useMemo<GroupedTags>(() => {
     return groupBy(tags, 'schooltype');
   }, [tags]);
@@ -108,13 +83,8 @@ const TagsPanel: FC<{
 
   const hideAllSchoolTypes = useCallback(() => {
     const updatedTags = { ...filters.tags };
-    Object.entries(groupedTags).forEach(([schoolType, tags]) => {
-      // Only process elementary and high school types
-      if (schoolType.toLowerCase() !== 'provider') {
-        tags.forEach(tag => {
-          updatedTags[tag.key] = false;
-        });
-      }
+    Object.values(groupedTags).flat().forEach(tag => {
+      updatedTags[tag.key] = false;
     });
     setTags(updatedTags);
   }, [groupedTags, filters.tags, setTags]);
@@ -164,9 +134,6 @@ const TagsPanel: FC<{
 
   const renderSchoolTypeToggleButton = useCallback((schoolType: string) => {
     const isVisible = isSchoolTypeVisible(schoolType);
-    if (schoolType.toLowerCase() === 'provider') {
-      return null;
-    }
     return (
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div
@@ -195,68 +162,34 @@ const TagsPanel: FC<{
     );
   }, [isSchoolTypeVisible, toggleSchoolType]);
 
-  // Add this state to track if school types are all hidden
-  const [areTypesHidden, setAreTypesHidden] = useState(false);
-
-  const toggleAllSchoolTypes = useCallback(() => {
-    const updatedTags = { ...filters.tags };
-    Object.entries(groupedTags).forEach(([schoolType, tags]) => {
-      // Only process elementary and high school types
-      if (schoolType.toLowerCase() !== 'provider') {
-        tags.forEach(tag => {
-          updatedTags[tag.key] = areTypesHidden; // Set to true if they were hidden, false if they were shown
-        });
-      }
-    });
-    setTags(updatedTags);
-    setAreTypesHidden(!areTypesHidden); // Toggle the state
-  }, [groupedTags, filters.tags, setTags, areTypesHidden]);
-
   return (
     <Panel title={<><MdCategory className="text-muted" /> School Type</>}>
       <p><i className="text-muted">Click a school type to show/hide related pages from the network.</i></p>
       <p className="buttons">
-        <button className="btn" onClick={() => {
-          const updatedTags = { ...filters.tags };
-          Object.entries(groupedTags).forEach(([schoolType, tags]) => {
-            // Only process elementary and high school types
-            if (schoolType.toLowerCase() !== 'provider') {
-              tags.forEach(tag => {
-                updatedTags[tag.key] = true;
-              });
-            }
-          });
-          setTags(updatedTags);
-        }}>
+        <button className="btn" onClick={() => setTags(mapValues(keyBy(tags, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={toggleAllSchoolTypes}>
-          {areTypesHidden ? (
-            <><AiOutlineCheckCircle /> Show all types</>
-          ) : (
-            <><AiOutlineCloseCircle /> Hide all types</>
-          )}
+        <button className="btn" onClick={hideAllSchoolTypes}>
+          <AiOutlineCloseCircle /> Hide all types
         </button>
       </p>
       {schoolTypes.map((schoolType) => (
-        schoolType.toLowerCase() === 'provider' ? null : (
-          <div key={schoolType}>
-            <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span 
-                style={{ fontWeight: 'bold', cursor: 'pointer' }} 
-                onClick={() => toggleSchoolTypeExpansion(schoolType)}
-              >
-                {expandedSchoolTypes[schoolType] ? <MdExpandLess /> : <MdExpandMore />} {schoolType}
-              </span>
-              {renderSchoolTypeToggleButton(schoolType)}
-            </h3>
-            {expandedSchoolTypes[schoolType] && (
-              <ul>
-                {(groupedTags[schoolType] || []).map(renderTag)}
-              </ul>
-            )}
-          </div>
-        )
+        <div key={schoolType}>
+          <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span 
+              style={{ fontWeight: 'bold', cursor: 'pointer' }} 
+              onClick={() => toggleSchoolTypeExpansion(schoolType)}
+            >
+              {expandedSchoolTypes[schoolType] ? <MdExpandLess /> : <MdExpandMore />} {schoolType}
+            </span>
+            {renderSchoolTypeToggleButton(schoolType)}
+          </h3>
+          {expandedSchoolTypes[schoolType] && (
+            <ul>
+              {(groupedTags[schoolType] || []).map(renderTag)}
+            </ul>
+          )}
+        </div>
       ))}
     </Panel>
   );

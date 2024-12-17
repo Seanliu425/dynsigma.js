@@ -244,7 +244,7 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     setShowAllConnections(false);
   }, [clickedNode]);
 
-  const sizingButtonText = `Size Nodes by ${nodeSizingMode === 'linchpin' ? 'Degree' : 'Linchpin'}`;
+  const sizingButtonText = `Size Nodes by ${nodeSizingMode === 'linchpin' ? 'Score' : 'Linchpin'}`;
 
   return (
     <Panel
@@ -345,6 +345,13 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
               {communityButtonText}
             </button>
           )}
+          <button
+            className={`${styles.button} ${styles.showAllConnectionsButton}`}
+            onClick={() => setShowAllConnections(!showAllConnections)}
+            disabled={!clickedNode}
+          >
+            {showAllConnections ? "Hide All Connections" : "Show All Connections"}
+          </button>
           <button
             className={`${styles.button} ${styles.sizingButton}`}
             onClick={() => setNodeSizingMode(nodeSizingMode === 'linchpin' ? 'score' : 'linchpin')}

@@ -42,31 +42,6 @@ const ClustersPanel: FC<{
     [clusters, nodesPerCluster],
   );
 
-  useEffect(() => {
-    // First check year filter, then apply cluster filtering
-    graph.forEachNode((node) => {
-      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
-      const nodeCluster = graph.getNodeAttribute(node, "cluster");
-      const shouldBeVisible = filters.clusters[nodeCluster];
-      
-      // If yearFiltered is true, node stays filtered out regardless of cluster filter
-      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
-    });
-
-    // Then update visible edge counts
-    graph.forEachNode(node => {
-      let visibleEdges = 0;
-      graph.forEachEdge(node, (edge, attrs, source, target) => {
-        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
-        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
-        if (!sourceFiltered && !targetFiltered) {
-          visibleEdges++;
-        }
-      });
-      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
-    });
-  }, [graph, filters.clusters]);
-
   return (
     <Panel
       title={

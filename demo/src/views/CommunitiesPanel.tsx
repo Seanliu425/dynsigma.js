@@ -201,17 +201,6 @@ const CommunitiesPanel: FC<{
     setCommunities(mapValues(keyBy(communities, "key"), () => true));
   };
 
-  const toggleAllCommunities = useCallback((checked: boolean) => {
-    const updatedCommunities = { ...filters.communities };
-    Object.keys(updatedCommunities).forEach(key => {
-      // Skip the "Provider" community when toggling all
-      if (key !== "Provider") {
-        updatedCommunities[key] = checked;
-      }
-    });
-    setCommunities(updatedCommunities);
-  }, [filters.communities, setCommunities]);
-
   return (
     <Panel title={<><MdCategory className="text-muted" /> School Community</>}>
       <p><i className="text-muted">Click a category to show/hide related pages from the network.</i></p>
@@ -219,7 +208,7 @@ const CommunitiesPanel: FC<{
         <button className="btn" onClick={handleCheckAll}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={hideAllZones}>
+        <button className="btn" onClick={() => setCommunities({})}>
           <AiOutlineCloseCircle /> Uncheck all
         </button>
       </p>

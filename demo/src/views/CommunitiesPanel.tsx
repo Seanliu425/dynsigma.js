@@ -7,6 +7,7 @@ import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 
 import { Community, FiltersState } from "../types";
 import Panel from "./Panel";
+import { applyFilters } from "../utils/filterUtils";
 
 type GroupedCommunities = {
   [key: string]: Community[];
@@ -173,29 +174,8 @@ const CommunitiesPanel: FC<{
   }, [isZoneVisible, toggleHealthZone]);
 
   useEffect(() => {
-    // First check year filter, then apply community filtering
-    graph.forEachNode((node) => {
-      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
-      const community = graph.getNodeAttribute(node, "community");
-      const shouldBeVisible = filters.communities[community];
-      
-      // If yearFiltered is true, node stays filtered out regardless of community filter
-      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
-    });
-
-    // Then update visible edge counts
-    graph.forEachNode(node => {
-      let visibleEdges = 0;
-      graph.forEachEdge(node, (edge, attrs, source, target) => {
-        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
-        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
-        if (!sourceFiltered && !targetFiltered) {
-          visibleEdges++;
-        }
-      });
-      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
-    });
-  }, [graph, filters.communities]);
+    applyFilters(graph, filters);
+  }, [graph, filters]);
 
   // Modify the check all button handler
   const handleCheckAll = () => {

@@ -7,6 +7,7 @@ import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 
 import { Tag, FiltersState } from "../types";
 import Panel from "./Panel";
+import { applyFilters } from "../utils/filterUtils";
 
 type GroupedTags = {
   [key: string]: Tag[];
@@ -38,45 +39,8 @@ const TagsPanel: FC<{
   const [visibleNodesPerTag, setVisibleNodesPerTag] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const updateVisibleNodes = () => {
-      const index: Record<string, number> = {};
-      graph.forEachNode((_, attrs) => {
-        if (!attrs.hidden && attrs.tag) {
-          index[attrs.tag] = (index[attrs.tag] || 0) + 1;
-        }
-      });
-      setVisibleNodesPerTag(index);
-    };
-
-    updateVisibleNodes();
-    const intervalId = setInterval(updateVisibleNodes, 1000);
-    return () => clearInterval(intervalId);
+    applyFilters(graph, filters);
   }, [graph, filters]);
-
-  useEffect(() => {
-    // First check year filter, then apply tag filtering
-    graph.forEachNode((node) => {
-      const yearFiltered = graph.getNodeAttribute(node, "yearFiltered");
-      const nodeTag = graph.getNodeAttribute(node, "tag");
-      const shouldBeVisible = filters.tags[nodeTag];
-      
-      // If yearFiltered is true, node stays filtered out regardless of tag filter
-      graph.setNodeAttribute(node, "filteredOut", yearFiltered || !shouldBeVisible);
-    });
-
-    // Then update visible edge counts
-    graph.forEachNode(node => {
-      let visibleEdges = 0;
-      graph.forEachEdge(node, (edge, attrs, source, target) => {
-        const sourceFiltered = graph.getNodeAttribute(source, "filteredOut");
-        const targetFiltered = graph.getNodeAttribute(target, "filteredOut");
-        if (!sourceFiltered && !targetFiltered) {
-          visibleEdges++;
-        }
-      });
-      graph.setNodeAttribute(node, "visibleEdgeCount", visibleEdges);
-    });
-  }, [graph, filters.tags]);
 
   const groupedTags = useMemo<GroupedTags>(() => {
     return groupBy(tags, 'schooltype');

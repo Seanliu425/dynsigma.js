@@ -210,28 +210,28 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     if (!graph) return;
 
     graph.forEachNode((node) => {
-      // First check year filter
-      const isVisibleForAnyYear = selectedYears.some((year: string) => {
+      // Check all filter types
+      const yearFiltered = !selectedYears.some((year: string) => {
         const yearValue = graph.getNodeAttribute(node, year);
         return yearValue === "Yes";
       });
+      const tagFiltered = graph.getNodeAttribute(node, "tagFiltered");
+      const clusterFiltered = graph.getNodeAttribute(node, "clusterFiltered");
+      const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
 
       // Store year filter result
-      graph.setNodeAttribute(node, "yearFiltered", !isVisibleForAnyYear);
+      graph.setNodeAttribute(node, "yearFiltered", yearFiltered);
 
-      // Get other filter status
-      const wasFilteredOut = graph.getNodeAttribute(node, "filteredOut");
-
-      // Node is hidden if either year filtered or filtered by other means
-      let shouldHide = !isVisibleForAnyYear || wasFilteredOut;
+      // Node is hidden if ANY filter is active
+      let shouldHide = yearFiltered || tagFiltered || clusterFiltered || communityFiltered;
 
       // Handle showAllConnections override
       if (showAllConnections && selectedNode) {
         if (node === selectedNode) {
-          shouldHide = !isVisibleForAnyYear; // Only show if passes year filter
+          shouldHide = yearFiltered; // Only respect year filter for selected node
         } else {
           const isNeighbor = graph.neighbors(selectedNode).includes(node);
-          shouldHide = !isVisibleForAnyYear || !isNeighbor; // Only show neighbors if they pass year filter
+          shouldHide = yearFiltered || !isNeighbor;
         }
       }
       

@@ -244,7 +244,11 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
     setShowAllConnections(false);
   }, [clickedNode]);
 
-  const sizingButtonText = `Size Nodes by ${nodeSizingMode === 'linchpin' ? 'Score' : 'Linchpin'}`;
+  const sizingButtonText = `Size Nodes by ${
+    nodeSizingMode === 'linchpin' 
+      ? 'Degree Centrality' 
+      : 'Linchpin Score'
+  }`;
 
   return (
     <Panel

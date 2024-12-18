@@ -38,7 +38,8 @@ const ClustersPanel: FC<{
   }, [filters]);
 
   const sortedClusters = useMemo(
-    () => sortBy(clusters, (cluster) => -nodesPerCluster[cluster.key]),
+    () => sortBy(clusters, (cluster) => -nodesPerCluster[cluster.key])
+      .filter(cluster => cluster.key !== "School"),
     [clusters, nodesPerCluster],
   );
 
@@ -90,7 +91,7 @@ const ClustersPanel: FC<{
         <button className="btn" onClick={() => setClusters(mapValues(keyBy(clusters, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={() => setClusters({})}>
+        <button className="btn" onClick={() => setClusters(mapValues(keyBy(clusters, "key"), (cluster) => cluster.key === "School"))}>
           <AiOutlineCloseCircle /> Uncheck all
         </button>
       </p>

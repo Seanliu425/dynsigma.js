@@ -82,7 +82,10 @@ const TagsPanel: FC<{
     return groupBy(tags, 'schooltype');
   }, [tags]);
 
-  const schoolTypes = useMemo(() => sortBy(Object.keys(groupedTags)), [groupedTags]);
+  const schoolTypes = useMemo(() => {
+    return sortBy(Object.keys(groupedTags))
+      .filter(type => type !== 'Provider');
+  }, [groupedTags]);
 
   const toggleSchoolTypeExpansion = useCallback((schoolType: string) => {
     setExpandedSchoolTypes(prev => ({ ...prev, [schoolType]: !prev[schoolType] }));
@@ -108,9 +111,15 @@ const TagsPanel: FC<{
 
   const hideAllSchoolTypes = useCallback(() => {
     const updatedTags = { ...filters.tags };
-    Object.values(groupedTags).flat().forEach(tag => {
-      updatedTags[tag.key] = false;
+    const targetSchoolTypes = ['Elementary', 'High School'];
+    
+    targetSchoolTypes.forEach(schoolType => {
+      const tagsInSchoolType = groupedTags[schoolType] || [];
+      tagsInSchoolType.forEach(tag => {
+        updatedTags[tag.key] = false;
+      });
     });
+    
     setTags(updatedTags);
   }, [groupedTags, filters.tags, setTags]);
 
@@ -195,7 +204,7 @@ const TagsPanel: FC<{
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
         <button className="btn" onClick={hideAllSchoolTypes}>
-          <AiOutlineCloseCircle /> Hide all types
+          <AiOutlineCloseCircle /> Uncheck All
         </button>
       </p>
       {schoolTypes.map((schoolType) => (

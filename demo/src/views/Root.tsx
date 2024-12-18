@@ -287,9 +287,9 @@ const Root: FC = () => {
                   toggleCluster={(cluster) => {
                     setFiltersState((filters) => ({
                       ...filters,
-                      clusters: filters.clusters[cluster] === true
-                        ? omit(filters.clusters, cluster)  // First sets to omitted
-                        : { ...filters.clusters, [cluster]: true }  // Sets to true if not present or false
+                      clusters: filters.clusters[cluster] 
+                        ? omit(filters.clusters, cluster) 
+                        : { ...filters.clusters, [cluster]: true },
                     }));
                   }}
                 />

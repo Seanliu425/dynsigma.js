@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react";
+import React, { FC, useEffect, useMemo } from "react";
 import { useSigma } from "react-sigma-v2";
 import { sortBy, values, keyBy, mapValues } from "lodash";
 import { MdGroupWork } from "react-icons/md";
@@ -26,17 +26,15 @@ const ClustersPanel: FC<{
   const maxNodesPerCluster = useMemo(() => Math.max(...values(nodesPerCluster)), [nodesPerCluster]);
   const visibleClustersCount = useMemo(() => Object.keys(filters.clusters).length, [filters]);
 
-  const [visibleNodesPerCluster, setVisibleNodesPerCluster] = useState<Record<string, number>>(nodesPerCluster);
-  useEffect(() => {
-    // To ensure the graphology instance has up to data "hidden" values for
-    // nodes, we wait for next frame before reindexing. This won't matter in the
-    // UX, because of the visible nodes bar width transition.
-    requestAnimationFrame(() => {
-      const index: Record<string, number> = {};
-      graph.forEachNode((_, { cluster, hidden }) => !hidden && (index[cluster] = (index[cluster] || 0) + 1));
-      setVisibleNodesPerCluster(index);
+  const visibleNodesPerCluster = useMemo(() => {
+    const index: Record<string, number> = {};
+    graph.forEachNode((_, { cluster, hidden }) => {
+      if (filters.clusters[cluster]) {
+        index[cluster] = (index[cluster] || 0) + 1;
+      }
     });
-  }, [filters]);
+    return index;
+  }, [filters.clusters, graph]);
 
   const sortedClusters = useMemo(
     () => sortBy(clusters, (cluster) => -nodesPerCluster[cluster.key])

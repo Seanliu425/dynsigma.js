@@ -10,9 +10,9 @@ export const applyFilters = (graph: Graph, filters: FiltersState) => {
     const nodeCommunity = graph.getNodeAttribute(node, "community");
     
     // Check visibility for all filter types
-    const clusterVisible = filters.clusters[nodeCluster] ?? true; // Default to true if undefined
-    const tagVisible = filters.tags[nodeTag] ?? true; // Default to true if undefined
-    const communityVisible = filters.communities[nodeCommunity] ?? true; // Default to true if undefined
+    const clusterVisible = Object.keys(filters.clusters).length === 0 || filters.clusters[nodeCluster] === true;
+    const tagVisible = Object.keys(filters.tags).length === 0 || filters.tags[nodeTag] === true;
+    const communityVisible = Object.keys(filters.communities).length === 0 || filters.communities[nodeCommunity] === true;
     
     // Node should be visible only if it passes ALL filters
     const shouldBeVisible = clusterVisible && tagVisible && communityVisible;

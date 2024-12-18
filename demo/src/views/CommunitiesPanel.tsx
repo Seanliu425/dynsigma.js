@@ -91,11 +91,13 @@ const CommunitiesPanel: FC<{
 
   const hideAllZones = useCallback(() => {
     const updatedCommunities = { ...filters.communities };
-    Object.values(groupedCommunities).flat().forEach(community => {
-      updatedCommunities[community.key] = false;
+    healthZones.forEach(zone => {
+      (groupedCommunities[zone] || []).forEach(community => {
+        updatedCommunities[community.key] = false;
+      });
     });
     setCommunities(updatedCommunities);
-  }, [groupedCommunities, filters.communities, setCommunities]);
+  }, [groupedCommunities, healthZones, filters.communities, setCommunities]);
 
   const renderCommunity = useCallback((community: Community) => {
     const nodesCount = nodesPerCommunity[community.key] || 0;
@@ -208,7 +210,7 @@ const CommunitiesPanel: FC<{
         <button className="btn" onClick={handleCheckAll}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={() => setCommunities({})}>
+        <button className="btn" onClick={hideAllZones}>
           <AiOutlineCloseCircle /> Uncheck all
         </button>
       </p>

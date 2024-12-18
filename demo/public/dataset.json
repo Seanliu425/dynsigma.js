@@ -324,8 +324,8 @@
       "2021": "No",
       "key": "16",
       "score": 15.142861000000002,
-      "community": "Not Mapped",
-      "healthzone": "Provider",
+      "community": "WEST TOWN",
+      "healthzone": "West",
       "schooltype": "High School"
     },
     {
@@ -424,8 +424,8 @@
       "2021": "No",
       "key": "21",
       "score": 20.285713,
-      "community": "Provider",
-      "healthzone": "Provider",
+      "community": "GRAND BOULEVARD",
+      "healthzone": "Near South",
       "schooltype": "Elementary"
     },
     {
@@ -5404,8 +5404,8 @@
       "2021": "Yes",
       "key": "270",
       "score": 17.714287,
-      "community": "Provider",
-      "healthzone": "Provider",
+      "community": "BRIDGEPORT",
+      "healthzone": "Southwest",
       "schooltype": "Elementary"
     },
     {

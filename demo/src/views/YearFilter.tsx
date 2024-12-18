@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import Panel from "./Panel";
 import { BsCalendar } from "react-icons/bs";
+import { AiOutlineCloseCircle } from "react-icons/ai";
 import styles from "./YearFilter.module.css";
 
 interface YearFilterProps {
@@ -19,6 +20,14 @@ const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) =>
     }
   };
 
+  const handleToggleAll = () => {
+    if (selectedYears.length === years.length) {
+      setSelectedYears([]);
+    } else {
+      setSelectedYears([...years]);
+    }
+  };
+
   return (
     <Panel
       title={
@@ -28,6 +37,20 @@ const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) =>
       }
     >
       <div className={styles.yearFilterContainer}>
+        <div className={styles.buttonContainer}>
+          <button 
+            className="btn btn-sm btn-link text-muted" 
+            onClick={() => setSelectedYears([...years])}
+          >
+            <AiOutlineCloseCircle /> Check all
+          </button>
+          <button 
+            className="btn btn-sm btn-link text-muted" 
+            onClick={() => setSelectedYears([])}
+          >
+            <AiOutlineCloseCircle /> Uncheck all
+          </button>
+        </div>
         {years.map(year => (
           <label key={year} className={styles.checkboxLabel}>
             <input

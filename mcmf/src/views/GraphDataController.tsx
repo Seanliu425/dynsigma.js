@@ -2,7 +2,7 @@ import { useSigma } from "react-sigma-v2";
 import { FC, useEffect, useCallback, PropsWithChildren } from "react";
 import { keyBy, omit } from "lodash";
 
-import { Dataset, FiltersState, NodeSizingMode } from "../types";
+import { Dataset, FiltersState, NodeSizingMode, NodeData } from "../types";
 
 interface Props {
   dataset: Dataset;
@@ -12,6 +12,21 @@ interface Props {
   selectedYears: string[];
   showAllConnections?: boolean;
   selectedNode?: string | null;
+}
+
+// Export this interface so it can be used in other components
+export interface NodeAttributes extends Omit<NodeData, 'cluster'> {
+  clusters: string[];
+  image: string;
+  color: string;
+  clusterLabel: string;
+  clusterColors: string[];
+  healthzone?: string;
+  schooltype?: string;
+  hidden?: boolean;
+  tagFiltered?: boolean;
+  filteredOut?: boolean;
+  [key: string]: any; // Allow for dynamic year properties
 }
 
 const GraphDataController: FC<PropsWithChildren<Props>> = ({
@@ -141,19 +156,27 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     const tags = keyBy(dataset.tags, "key");
     const communities = keyBy(dataset.communities, "key");
 
-    dataset.nodes.forEach((node) => {
-      const nodeAttributes = {
+    dataset.nodes.forEach((node: NodeData) => {
+      // Convert single cluster to array if needed
+      const nodeClusters = Array.isArray((node as any).clusters) 
+        ? (node as any).clusters 
+        : [node.clusters];
+
+      const nodeAttributes: NodeAttributes = {
         ...node,
-        ...omit(clusters[node.cluster], "key"),
+        clusters: nodeClusters,
+        ...omit(clusters[nodeClusters[0]], "key"),
         image: `${process.env.PUBLIC_URL}/images/${tags[node.tag].image}`,
+        clusterColors: nodeClusters.map((c: string) => clusters[c].color),
+        cluster: nodeClusters[0] // Keep the single cluster for backward compatibility
       };
 
       // Add healthzone and schooltype if they exist
       if ('healthzone' in node) {
-        nodeAttributes.healthzone = node.healthzone;
+        nodeAttributes.healthzone = (node as any).healthzone;
       }
       if ('schooltype' in node) {
-        nodeAttributes.schooltype = node.schooltype;
+        nodeAttributes.schooltype = (node as any).schooltype;
       }
 
       graph.addNode(node.key, nodeAttributes);
@@ -210,25 +233,28 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     if (!graph) return;
 
     graph.forEachNode((node) => {
-      // Check all filter types
+      const nodeData = graph.getNodeAttributes(node);
+      const nodeClusters = nodeData.clusters;
+      
+      // Node is visible if ANY of its clusters are visible
+      const clusterFiltered = !nodeClusters.some((cluster: string) => filters.clusters[cluster]);
+      
+      // Rest of the filtering logic
       const yearFiltered = !selectedYears.some((year: string) => {
         const yearValue = graph.getNodeAttribute(node, year);
         return yearValue === "Yes";
       });
       const tagFiltered = graph.getNodeAttribute(node, "tagFiltered");
-      const clusterFiltered = graph.getNodeAttribute(node, "clusterFiltered");
       const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
 
-      // Store year filter result
+      graph.setNodeAttribute(node, "clusterFiltered", clusterFiltered);
       graph.setNodeAttribute(node, "yearFiltered", yearFiltered);
 
-      // Node is hidden if ANY filter is active
       let shouldHide = yearFiltered || tagFiltered || clusterFiltered || communityFiltered;
 
-      // Handle showAllConnections override
       if (showAllConnections && selectedNode) {
         if (node === selectedNode) {
-          shouldHide = yearFiltered; // Only respect year filter for selected node
+          shouldHide = yearFiltered;
         } else {
           const isNeighbor = graph.neighbors(selectedNode).includes(node);
           shouldHide = yearFiltered || !isNeighbor;

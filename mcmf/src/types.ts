@@ -1,7 +1,7 @@
 export interface NodeData {
   key: string;
   label: string;
-  cluster: string;
+  clusters: string[];
   tag: string;
   community: string;
   score: number;

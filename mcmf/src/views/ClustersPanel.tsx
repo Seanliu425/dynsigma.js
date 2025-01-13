@@ -7,6 +7,7 @@ import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import { Cluster, FiltersState } from "../types";
 import Panel from "./Panel";
 import { applyFilters } from "../utils/filterUtils";
+import { NodeAttributes } from "./GraphDataController";
 
 const ClustersPanel: FC<{
   clusters: Cluster[];
@@ -19,7 +20,12 @@ const ClustersPanel: FC<{
 
   const nodesPerCluster = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, { cluster }) => (index[cluster] = (index[cluster] || 0) + 1));
+    graph.forEachNode((_, attrs: Partial<NodeAttributes>) => {
+      const clusters = Array.isArray(attrs.clusters) ? attrs.clusters : [attrs.cluster as string];
+      clusters.forEach((cluster: string) => {
+        index[cluster] = (index[cluster] || 0) + 1;
+      });
+    });
     return index;
   }, []);
 
@@ -28,9 +34,14 @@ const ClustersPanel: FC<{
 
   const visibleNodesPerCluster = useMemo(() => {
     const index: Record<string, number> = {};
-    graph.forEachNode((_, { cluster, hidden }) => {
-      if (filters.clusters[cluster]) {
-        index[cluster] = (index[cluster] || 0) + 1;
+    graph.forEachNode((_, attrs: Partial<NodeAttributes>) => {
+      const clusters = Array.isArray(attrs.clusters) ? attrs.clusters : [attrs.cluster as string];
+      if (!attrs.hidden) {
+        clusters.forEach((cluster: string) => {
+          if (filters.clusters[cluster]) {
+            index[cluster] = (index[cluster] || 0) + 1;
+          }
+        });
       }
     });
     return index;

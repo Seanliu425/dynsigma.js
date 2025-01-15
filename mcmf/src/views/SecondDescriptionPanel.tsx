@@ -268,7 +268,13 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             <p><strong>Visible Connections:</strong> {graph.getNodeAttribute(clickedNode, "visibleEdgeCount")}</p>
             {!isSchool && (
               <>
-                <p><strong>Provider Type:</strong> {graph.getNodeAttribute(clickedNode, "cluster")}</p>
+                <p><strong>Provider Type{graph.getNodeAttribute(clickedNode, "clusters")?.length > 1 ? 's' : ''}:</strong> {
+                  // Check if clusters exists and is an array, then join with commas
+                  Array.isArray(graph.getNodeAttribute(clickedNode, "clusters")) 
+                    ? graph.getNodeAttribute(clickedNode, "clusters").join(", ")
+                    // Fallback to single cluster if clusters array doesn't exist
+                    : graph.getNodeAttribute(clickedNode, "cluster")
+                }</p>
                 <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
               </>
             )}

@@ -40,7 +40,9 @@ export function drawHover(context: CanvasRenderingContext2D, data: PlainObject, 
   const label = data.label;
   const subLabel = data.tag !== "unknown" ? `Network: ${data.tag}` : "";
   const communityLabel = data.community ? `Community: ${data.community}` : "";
-  const clusterLabel = data.clusterLabel;
+  const clusterLabel = Array.isArray(data.clusters) && data.clusters.length > 1 
+    ? "Multiple Types of Programs"
+    : data.clusterLabel;
 
   // Measure text widths
   context.font = `${weight} ${size}px ${font}`;

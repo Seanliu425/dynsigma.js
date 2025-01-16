@@ -184,7 +184,7 @@ const CommunitiesPanel: FC<{
   };
 
   return (
-    <Panel title={<><MdCategory className="text-muted" /> School Community</>}>
+    <Panel title={<><MdCategory className="text-muted" /> Community</>}>
       <p><i className="text-muted">Click a category to show/hide related pages from the network.</i></p>
       <p className="buttons">
         <button className="btn" onClick={handleCheckAll}>

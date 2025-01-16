@@ -9,10 +9,6 @@ import { Tag, FiltersState } from "../types";
 import Panel from "./Panel";
 import { applyFilters } from "../utils/filterUtils";
 
-type GroupedTags = {
-  [key: string]: Tag[];
-};
-
 const TagsPanel: FC<{
   tags: Tag[];
   filters: FiltersState;
@@ -21,8 +17,6 @@ const TagsPanel: FC<{
 }> = ({ tags, filters, toggleTag, setTags }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
-
-  const [expandedSchoolTypes, setExpandedSchoolTypes] = useState<Record<string, boolean>>({});
 
   const nodesPerTag = useMemo(() => {
     const index: Record<string, number> = {};
@@ -42,50 +36,10 @@ const TagsPanel: FC<{
     applyFilters(graph, filters);
   }, [graph, filters]);
 
-  const groupedTags = useMemo<GroupedTags>(() => {
-    return groupBy(tags, 'schooltype');
-  }, [tags]);
-
-  const schoolTypes = useMemo(() => {
-    return sortBy(Object.keys(groupedTags))
-      .filter(type => type !== 'Provider');
-  }, [groupedTags]);
-
-  const toggleSchoolTypeExpansion = useCallback((schoolType: string) => {
-    setExpandedSchoolTypes(prev => ({ ...prev, [schoolType]: !prev[schoolType] }));
+  useEffect(() => {
+    const initialTags = mapValues(keyBy(tags, "key"), () => true);
+    setTags(initialTags);
   }, []);
-
-  const isSchoolTypeVisible = useCallback((schoolType: string) => {
-    const tagsInSchoolType = groupedTags[schoolType] || [];
-    return tagsInSchoolType.some(tag => filters.tags[tag.key]);
-  }, [groupedTags, filters.tags]);
-
-  const toggleSchoolType = useCallback((schoolType: string) => {
-    const tagsInSchoolType = groupedTags[schoolType] || [];
-    const allVisible = tagsInSchoolType.every(tag => filters.tags[tag.key]);
-    const newState = !allVisible;
-    
-    const updatedTags = { ...filters.tags };
-    tagsInSchoolType.forEach(tag => {
-      updatedTags[tag.key] = newState;
-    });
-    
-    setTags(updatedTags);
-  }, [groupedTags, filters.tags, setTags]);
-
-  const hideAllSchoolTypes = useCallback(() => {
-    const updatedTags = { ...filters.tags };
-    const targetSchoolTypes = ['Elementary', 'High School'];
-    
-    targetSchoolTypes.forEach(schoolType => {
-      const tagsInSchoolType = groupedTags[schoolType] || [];
-      tagsInSchoolType.forEach(tag => {
-        updatedTags[tag.key] = false;
-      });
-    });
-    
-    setTags(updatedTags);
-  }, [groupedTags, filters.tags, setTags]);
 
   const renderTag = useCallback((tag: Tag) => {
     const nodesCount = nodesPerTag[tag.key] || 0;
@@ -130,65 +84,20 @@ const TagsPanel: FC<{
     );
   }, [nodesPerTag, visibleNodesPerTag, maxNodesPerTag, filters.tags, toggleTag]);
 
-  const renderSchoolTypeToggleButton = useCallback((schoolType: string) => {
-    const isVisible = isSchoolTypeVisible(schoolType);
-    return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div
-          style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: isVisible ? '#28a745' : '#dc3545',
-            marginRight: '5px'
-          }}
-        />
-        <button 
-          onClick={() => toggleSchoolType(schoolType)}
-          style={{
-            fontSize: '0.8em',
-            padding: '2px 5px',
-            backgroundColor: 'transparent',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          {isVisible ? "Hide" : "Show"}
-        </button>
-      </div>
-    );
-  }, [isSchoolTypeVisible, toggleSchoolType]);
-
   return (
-    <Panel title={<><MdCategory className="text-muted" /> School Type</>}>
-      <p><i className="text-muted">Click a school type to show/hide related pages from the network.</i></p>
+    <Panel title={<><MdCategory className="text-muted" /> Tags</>}>
+      <p><i className="text-muted">Click tags to show/hide related pages from the network.</i></p>
       <p className="buttons">
         <button className="btn" onClick={() => setTags(mapValues(keyBy(tags, "key"), () => true))}>
           <AiOutlineCheckCircle /> Check all
         </button>{" "}
-        <button className="btn" onClick={hideAllSchoolTypes}>
+        <button className="btn" onClick={() => setTags(mapValues(keyBy(tags, "key"), () => false))}>
           <AiOutlineCloseCircle /> Uncheck All
         </button>
       </p>
-      {schoolTypes.map((schoolType) => (
-        <div key={schoolType}>
-          <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span 
-              style={{ fontWeight: 'bold', cursor: 'pointer' }} 
-              onClick={() => toggleSchoolTypeExpansion(schoolType)}
-            >
-              {expandedSchoolTypes[schoolType] ? <MdExpandLess /> : <MdExpandMore />} {schoolType}
-            </span>
-            {renderSchoolTypeToggleButton(schoolType)}
-          </h3>
-          {expandedSchoolTypes[schoolType] && (
-            <ul>
-              {(groupedTags[schoolType] || []).map(renderTag)}
-            </ul>
-          )}
-        </div>
-      ))}
+      <ul>
+        {tags.map(renderTag)}
+      </ul>
     </Panel>
   );
 };

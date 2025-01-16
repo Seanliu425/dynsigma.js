@@ -29,8 +29,8 @@ const GraphPage: FC = () => {
   const [filtersState, setFiltersState] = useState<FiltersState>({
     clusters: {},
     tags: {},
-    communities: {},  // Add this line
-    networkAttribute: "tag"  // Add this line
+    communities: {},
+    networkAttribute: "tag"
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [clickedNode, setClickedNode] = useState<string | null>(null);
@@ -44,7 +44,10 @@ const GraphPage: FC = () => {
   const [showAllConnections, setShowAllConnections] = useState(false);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>("2024");
-  const [selectedYears, setSelectedYears] = useState<string[]>(["2024"]);
+  const [selectedYears, setSelectedYears] = useState<string[]>([
+    "2024", "2023", "2022", "2021", "2020", "2019", 
+    "2018", "2017", "2016", "2015", "2014"
+  ]);
 
   // Load data on mount:
   useEffect(() => {
@@ -55,8 +58,8 @@ const GraphPage: FC = () => {
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
-          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),  // Add this line, using tags as communities for now
-          networkAttribute: "tag"  // Add this line
+          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),
+          networkAttribute: "tag"
         });
         requestAnimationFrame(() => setDataReady(true));
       });

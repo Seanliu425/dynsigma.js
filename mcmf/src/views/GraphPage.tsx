@@ -27,10 +27,25 @@ const GraphPage: FC = () => {
   const [dataReady, setDataReady] = useState(false);
   const [dataset, setDataset] = useState<Dataset | null>(null);
   const [filtersState, setFiltersState] = useState<FiltersState>({
-    clusters: {},
+    clusters: {
+      "food.": true,
+      "digital media": true,
+      "building and fixing things": true,
+      "learning as a lifestyle": true,
+      "music & art.": true,
+      "helping your community": true,
+      "reading & writing": true,
+      "performance": true,
+      "science & math": true,
+      "computers": true,
+      "nature": true,
+      "sports & wellness": true,
+      "social studies": true,
+      "managing money": true
+    },
     tags: {},
-    communities: {},  // Add this line
-    networkAttribute: "tag"  // Add this line
+    communities: {},
+    networkAttribute: "tag"
   });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [clickedNode, setClickedNode] = useState<string | null>(null);
@@ -44,23 +59,44 @@ const GraphPage: FC = () => {
   const [showAllConnections, setShowAllConnections] = useState(false);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>("2024");
-  const [selectedYears, setSelectedYears] = useState<string[]>(["2024"]);
+  const [selectedYears, setSelectedYears] = useState<string[]>(() => {
+    const years = [
+      "2024", "2023", "2022", "2021", "2020", "2019", 
+      "2018", "2017", "2016", "2015", "2014"
+    ];
+    console.log("Initializing selectedYears:", years);
+    return years;
+  });
 
   // Load data on mount:
   useEffect(() => {
+    console.log("Starting data fetch...");
     fetch("./data.json")
       .then((res) => res.json())
       .then((dataset: Dataset) => {
+        console.log("Data loaded, setting years...");
         setDataset(dataset);
         setFiltersState({
           clusters: mapValues(keyBy(dataset.clusters, "key"), constant(true)),
           tags: mapValues(keyBy(dataset.tags, "key"), constant(true)),
-          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),  // Add this line, using tags as communities for now
-          networkAttribute: "tag"  // Add this line
+          communities: mapValues(keyBy(dataset.communities, "key"), constant(true)),
+          networkAttribute: "tag"
         });
+        // Explicitly set all years when data loads
+        const allYears = [
+          "2024", "2023", "2022", "2021", "2020", "2019", 
+          "2018", "2017", "2016", "2015", "2014"
+        ];
+        console.log("Setting selectedYears to:", allYears);
+        setSelectedYears(allYears);
         requestAnimationFrame(() => setDataReady(true));
       });
   }, []);
+
+  // Add effect to track selectedYears changes
+  useEffect(() => {
+    console.log("selectedYears changed to:", selectedYears);
+  }, [selectedYears]);
 
   if (!dataset) return null;
 
@@ -124,7 +160,6 @@ const GraphPage: FC = () => {
           dataset={dataset} 
           filters={filtersState}
           nodeSizingMode={nodeSizingMode}
-          selectedYear={selectedYear}
           selectedYears={selectedYears}
           showAllConnections={showAllConnections}
           selectedNode={selectedNode}

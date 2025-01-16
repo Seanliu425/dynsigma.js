@@ -10,9 +10,12 @@ interface YearFilterProps {
 }
 
 const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) => {
-  const years = ["2024", "2023", "2022", "2021"];
+  const years = ["2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014"];
+
+  console.log("YearFilter rendered with selectedYears:", selectedYears);
 
   const handleYearToggle = (year: string) => {
+    console.log("Toggling year:", year);
     if (selectedYears.includes(year)) {
       setSelectedYears(selectedYears.filter(y => y !== year));
     } else {
@@ -21,6 +24,7 @@ const YearFilter: FC<YearFilterProps> = ({ selectedYears, setSelectedYears }) =>
   };
 
   const handleToggleAll = () => {
+    console.log("Toggle all clicked, current length:", selectedYears.length);
     if (selectedYears.length === years.length) {
       setSelectedYears([]);
     } else {

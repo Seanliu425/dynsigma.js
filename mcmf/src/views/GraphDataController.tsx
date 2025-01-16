@@ -7,8 +7,7 @@ import { Dataset, FiltersState, NodeSizingMode, NodeData } from "../types";
 interface Props {
   dataset: Dataset;
   filters: FiltersState;
-  nodeSizingMode: NodeSizingMode;
-  selectedYear?: string;
+  nodeSizingMode: 'linchpin' | 'score';
   selectedYears: string[];
   showAllConnections?: boolean;
   selectedNode?: string | null;
@@ -33,14 +32,15 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
   dataset,
   filters,
   nodeSizingMode,
-  selectedYear = "2024",
-  selectedYears = ["2024", "2023", "2022", "2021"],
+  selectedYears,
   showAllConnections = false,
   selectedNode = null,
   children
 }) => {
   const sigma = useSigma();
   const graph = sigma.getGraph();
+
+  console.log("GraphDataController mounted with selectedYears:", selectedYears);
 
   const checkSecondDegreeConnections = useCallback(() => {
     const nodeEdgeColors = new Map();
@@ -167,6 +167,7 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
         clusters: nodeClusters,
         ...omit(clusters[nodeClusters[0]], "key"),
         image: `${process.env.PUBLIC_URL}/images/${tags[node.tag].image}`,
+        color: tags[node.tag].color,
         clusterColors: nodeClusters.map((c: string) => clusters[c].color),
         cluster: nodeClusters[0] // Keep the single cluster for backward compatibility
       };
@@ -232,6 +233,13 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
   useEffect(() => {
     if (!graph) return;
 
+    console.log("Filter effect triggered with:", {
+        selectedYears,
+        filters,
+        showAllConnections,
+        selectedNode
+    });
+
     graph.forEachNode((node) => {
       const nodeData = graph.getNodeAttributes(node);
       const nodeClusters = nodeData.clusters;
@@ -239,11 +247,15 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
       // Node is visible if ANY of its clusters are visible
       const clusterFiltered = !nodeClusters.some((cluster: string) => filters.clusters[cluster]);
       
-      // Rest of the filtering logic
+      // Add debug logging here
+      console.log(`Checking node: ${node}`);
       const yearFiltered = !selectedYears.some((year: string) => {
         const yearValue = graph.getNodeAttribute(node, year);
+        console.log(`Node ${node} - Year ${year}: ${yearValue}`);
         return yearValue === "Yes";
       });
+      console.log(`Node ${node} yearFiltered: ${yearFiltered}`);
+
       const tagFiltered = graph.getNodeAttribute(node, "tagFiltered");
       const communityFiltered = graph.getNodeAttribute(node, "filteredOut");
 

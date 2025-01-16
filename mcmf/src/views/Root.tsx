@@ -50,7 +50,7 @@ const Root: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedYear, setSelectedYear] = useState<string>("2024");
-  const [selectedYears, setSelectedYears] = useState<string[]>(["2024", "2023", "2022", "2021"]);
+  const [selectedYears, setSelectedYears] = useState<string[]>(["2024", "2023", "2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015", "2014"]);
 
   // Load data on mount:
   useEffect(() => {
@@ -210,7 +210,6 @@ const Root: FC = () => {
           dataset={dataset} 
           filters={filtersState}
           nodeSizingMode={nodeSizingMode}
-          selectedYear={selectedYear}
           selectedYears={selectedYears}
         />
 

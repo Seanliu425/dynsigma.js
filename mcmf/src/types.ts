@@ -19,6 +19,8 @@ export interface Cluster {
 export interface Tag {
   key: string;
   image: string;
+  schooltype?: string;
+  color: string;
 }
 
 // Add a new interface for Community

@@ -37581,13 +37581,13 @@
       "key": "Location",
       "image": "field.svg",
       "schooltype": "High School",
-      "color": "#9ea1d4"  
+       "color": "#9ea1d4"
     },
     {
       "key": "Provider",
       "image": "field.svg",
       "schooltype": "Provider",
-      "color": "#fd8a8a"
+            "color": "#fd8a8a"
     }
   ],
   "communities": [

@@ -46,6 +46,9 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
   const [showAllSecondDegree, setShowAllSecondDegree] = useState(false);
   const [showAllConnections, setShowAllConnections] = useState(false);
 
+  const linchpinScore = clickedNode ? graph.getNodeAttribute(clickedNode, "linchpinScore") : undefined;
+  const totalEdges = clickedNode ? graph.getNodeAttribute(clickedNode, "totalEdgeCount") : 0;
+
   const firstDegreeConnections = useMemo(() => {
     if (!clickedNode) return [];
 
@@ -266,9 +269,9 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
             <p><strong>Name:</strong> {graph.getNodeAttribute(clickedNode, "label") || clickedNode}</p>
             <p><strong>Total Connections:</strong> {graph.getNodeAttribute(clickedNode, "totalEdgeCount")}</p>
             <p><strong>Visible Connections:</strong> {graph.getNodeAttribute(clickedNode, "visibleEdgeCount")}</p>
-            {!isSchool && (
+            {(!isSchool && nodeTag === "Provider" || nodeTag !== "Provider") && (
               <>
-                <p><strong>Provider Type{graph.getNodeAttribute(clickedNode, "clusters")?.length > 1 ? 's' : ''}:</strong></p>
+                <p><strong>{nodeTag === "Provider" ? "Provider Type" : "Access to Programming Offering"}{graph.getNodeAttribute(clickedNode, "clusters")?.length > 1 ? 's' : ''}:</strong></p>
                 <ol>
                   {Array.isArray(graph.getNodeAttribute(clickedNode, "clusters")) 
                     ? graph.getNodeAttribute(clickedNode, "clusters").map((cluster: string) => (
@@ -277,7 +280,9 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
                     : <li>{graph.getNodeAttribute(clickedNode, "cluster")}</li>
                   }
                 </ol>
-                <p><strong>Linchpin Score:</strong> {graph.getNodeAttribute(clickedNode, "linchpinScore").toFixed(2)}</p>
+                {nodeTag === "Provider" && (
+                  <p><strong>Linchpin Score:</strong> {(linchpinScore * 100).toFixed(2)}% ({Math.round(linchpinScore * totalEdges)}/{totalEdges} connections)</p>
+                )}
               </>
             )}
             {!isProvider && (
@@ -296,11 +301,24 @@ const SecondDescriptionPanel: FC<SecondDescriptionPanelProps> = ({
         {/* First-degree connections */}
         {clickedNode && (
           <div>
-            <h4>First-degree Connections:</h4>
+            <h4>{nodeTag === "Provider" ? "Connected Neighborhoods" : "Connected Providers"}:</h4>
             <ul>
-              {displayedConnections.map(({ id, label }) => (
-                <li key={id}>{label || id}</li>
-              ))}
+              {displayedConnections.map(({ id, label }, index) => {
+                const edgeColors = graph.getNodeAttribute(clickedNode, "edgeColors");
+                const edgeInfo = edgeColors?.get(id);
+                const clickedNodeLabel = graph.getNodeAttribute(clickedNode, "label") || clickedNode;
+                
+                return (
+                  <li key={id}>
+                    {index + 1}. {label || id}
+                    {nodeTag === "Provider" && edgeInfo?.missingClusters && (
+                      <ul className={styles.missingClusters}>
+                        <li>{clickedNodeLabel} is the only provider for Program Topics: <span className={styles.redText}>{edgeInfo.missingClusters}</span></li>
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             {firstDegreeConnections.length > 5 && (
               <button 

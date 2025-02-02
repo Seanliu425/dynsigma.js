@@ -40,6 +40,13 @@ const GraphSettingsController: FC<{
     );
   }, [sigma, graph]);
 
+  useEffect(() => {
+    // Configure edge label settings
+    sigma.setSetting("edgeLabelSize", 12);  // Adjust text size
+    sigma.setSetting("edgeLabelColor", { color: "#000000" });  // Black text
+    sigma.setSetting("edgeLabelWeight", "bold");  // Make text bold
+  }, [sigma]);
+
   const debouncedHoveredNode = useDebounce(hoveredNode, 40);
 
   useEffect(() => {
@@ -180,21 +187,32 @@ const GraphSettingsController: FC<{
               return { ...data, hidden: false }; // Use default color for School cluster
             } else {
               if (isFirstDegree(source) && isFirstDegree(target)) {
-                // Get the pre-calculated colors from the clicked node's edge colors
-                const edgeColors = graph.getNodeAttribute(clickedNode, "edgeColors") as Map<string, string>;
-                let color;
+                const clickedNodeTag = graph.getNodeAttribute(clickedNode, "tag");
                 
-                if (source === clickedNode) {
-                  color = edgeColors.get(target);
-                } else {
-                  color = edgeColors.get(source);
-                }
+                if (clickedNodeTag === "Provider") {
+                  // Only color edges for Provider nodes
+                  const edgeColors = graph.getNodeAttribute(clickedNode, "edgeColors") as Map<string, { color: string, missingClusters: string }>;
+                  let edgeInfo;
+                  
+                  if (source === clickedNode) {
+                    edgeInfo = edgeColors.get(target);
+                  } else {
+                    edgeInfo = edgeColors.get(source);
+                  }
 
-                return { 
-                  ...data, 
-                  color: color || data.color, 
-                  hidden: false 
-                };
+                  if (edgeInfo) {
+                    return { 
+                      ...data, 
+                      color: edgeInfo.color,
+                      label: edgeInfo.color === "#FF0000" ? `Missing: ${edgeInfo.missingClusters}` : "",
+                      hidden: false 
+                    };
+                  }
+                  return { ...data, hidden: false };
+                } else {
+                  // For non-Provider nodes, just show the edge without special coloring
+                  return { ...data, hidden: false };
+                }
               } else if (showSecondDegree && (isSecondDegree(source) || isSecondDegree(target))) {
                 // For second-degree connections, use default color
                 return { ...data, hidden: false };

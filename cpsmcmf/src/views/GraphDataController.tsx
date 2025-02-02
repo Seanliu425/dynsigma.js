@@ -64,13 +64,18 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
           clusters.forEach((cluster: string) => secondDegreeClusters.add(cluster));
         });
 
-        // Check if all of the original node's clusters are covered
-        const allClustersMatched = Array.from<string>(nodeClusters as Set<string>).every(cluster => 
-          secondDegreeClusters.has(cluster)
-        );
+        // Find missing clusters
+        const missingClusters = Array.from<string>(nodeClusters as Set<string>)
+          .filter(cluster => !secondDegreeClusters.has(cluster));
         
+        const allClustersMatched = missingClusters.length === 0;
         const color = allClustersMatched ? "#66BB6A" : "#FF0000";
-        nodeColors.set(connectedNodeKey, color);
+        
+        // Store both color and missing clusters info
+        nodeColors.set(connectedNodeKey, {
+          color,
+          missingClusters: missingClusters.join(", ")
+        });
         
         if (!allClustersMatched) {
           redEdges++;
@@ -81,7 +86,9 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
       graph.setNodeAttribute(nodeKey, "edgeColors", nodeColors);
       nodeEdgeColors.set(nodeKey, nodeColors);
 
-      const linchpinScore = totalEdges > 0 ? redEdges / totalEdges : 0;
+      // Only calculate linchpin score for Provider nodes
+      const nodeTag = graph.getNodeAttribute(nodeKey, "tag");
+      const linchpinScore = (nodeTag === "Provider" && totalEdges > 0) ? redEdges / totalEdges : 0;
       graph.setNodeAttribute(nodeKey, "linchpinScore", linchpinScore);
     });
 
@@ -119,7 +126,7 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
       if (nodeSizingMode === 'linchpin') {
         const degree = graph.neighbors(node).length;
         const tag = graph.getNodeAttribute(node, "tag");
-        if (degree < 2 || tag === "Provider") {
+        if (degree < 2 || tag !== "Provider") {
           return 0;
         }
         return graph.getNodeAttribute(node, "linchpinScore");

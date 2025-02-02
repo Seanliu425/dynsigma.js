@@ -46,7 +46,7 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
     const nodeEdgeColors = new Map();
 
     graph.forEachNode((nodeKey) => {
-      const nodeCluster = graph.getNodeAttribute(nodeKey, "cluster");
+      const nodeClusters = new Set(graph.getNodeAttribute(nodeKey, "clusters"));
       const connectedNodes = graph.neighbors(nodeKey);
       let redEdges = 0;
       let totalEdges = connectedNodes.length;
@@ -55,19 +55,30 @@ const GraphDataController: FC<PropsWithChildren<Props>> = ({
 
       connectedNodes.forEach(connectedNodeKey => {
         const secondDegreeNodes = graph.neighbors(connectedNodeKey);
-        const hasMatchingSecondDegreeNode = secondDegreeNodes.some(secondDegreeNodeKey => 
-          secondDegreeNodeKey !== nodeKey && 
-          graph.getNodeAttribute(secondDegreeNodeKey, "cluster") === nodeCluster
+        
+        // Collect all unique clusters from second-degree nodes
+        const secondDegreeClusters = new Set<string>();
+        secondDegreeNodes.forEach(secondDegreeNodeKey => {
+          if (secondDegreeNodeKey === nodeKey) return; // Skip the original node
+          const clusters = graph.getNodeAttribute(secondDegreeNodeKey, "clusters") as string[];
+          clusters.forEach((cluster: string) => secondDegreeClusters.add(cluster));
+        });
+
+        // Check if all of the original node's clusters are covered
+        const allClustersMatched = Array.from<string>(nodeClusters as Set<string>).every(cluster => 
+          secondDegreeClusters.has(cluster)
         );
         
-        const color = hasMatchingSecondDegreeNode ? "#66BB6A" : "#FF0000";
+        const color = allClustersMatched ? "#66BB6A" : "#FF0000";
         nodeColors.set(connectedNodeKey, color);
         
-        if (!hasMatchingSecondDegreeNode) {
+        if (!allClustersMatched) {
           redEdges++;
         }
       });
 
+      // Store the colors map as a node attribute
+      graph.setNodeAttribute(nodeKey, "edgeColors", nodeColors);
       nodeEdgeColors.set(nodeKey, nodeColors);
 
       const linchpinScore = totalEdges > 0 ? redEdges / totalEdges : 0;

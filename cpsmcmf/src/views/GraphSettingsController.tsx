@@ -180,20 +180,19 @@ const GraphSettingsController: FC<{
               return { ...data, hidden: false }; // Use default color for School cluster
             } else {
               if (isFirstDegree(source) && isFirstDegree(target)) {
-                // For first-degree connections, use existing logic for coloring
-                const hasMatchingSecondDegree = graph.neighbors(target).some(neighbor => 
-                  neighbor !== source && 
-                  neighbor !== clickedNode && 
-                  graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
-                ) || graph.neighbors(source).some(neighbor => 
-                  neighbor !== target && 
-                  neighbor !== clickedNode && 
-                  graph.getNodeAttribute(neighbor, "cluster") === clickedNodeCluster
-                );
+                // Get the pre-calculated colors from the clicked node's edge colors
+                const edgeColors = graph.getNodeAttribute(clickedNode, "edgeColors") as Map<string, string>;
+                let color;
+                
+                if (source === clickedNode) {
+                  color = edgeColors.get(target);
+                } else {
+                  color = edgeColors.get(source);
+                }
 
                 return { 
                   ...data, 
-                  color: hasMatchingSecondDegree ? EDGE_GREEN_COLOR : EDGE_RED_COLOR, 
+                  color: color || data.color, 
                   hidden: false 
                 };
               } else if (showSecondDegree && (isSecondDegree(source) || isSecondDegree(target))) {
